@@ -137,7 +137,8 @@ const config = {
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null
+    "rootEnvPath": "../../../../.env",
+    "schemaEnvPath": "../../../../.env"
   },
   "relativePath": "../../..",
   "clientVersion": "5.8.1",
@@ -155,8 +156,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "Z2VuZXJhdG9yIGNsaWVudCB7CiAgcHJvdmlkZXIgPSAicHJpc21hLWNsaWVudC1qcyIKICBvdXRwdXQgICA9ICIuL3NyYy9nZW5lcmF0ZWQvY2xpZW50Igp9CgpkYXRhc291cmNlIGRiIHsKICBwcm92aWRlciA9ICJzcWxpdGUiCiAgdXJsICAgICAgPSAiZmlsZTouL2Rldi5kYiIKfQoKbW9kZWwgVXNlciB7CiAgaWQgICAgICAgSW50ICAgICBAaWQgQGRlZmF1bHQoYXV0b2luY3JlbWVudCgpKQogIHVzZXJuYW1lIFN0cmluZwogIGVtYWlsICAgIFN0cmluZwogIHBhc3N3b3JkIFN0cmluZwogIGV2ZW50cyAgIEV2ZW50W10KfQoKbW9kZWwgRXZlbnQgewogIGlkICAgICAgICAgIEludCAgICAgIEBpZCBAZGVmYXVsdChhdXRvaW5jcmVtZW50KCkpCiAgZGVzY3JpcHRpb24gU3RyaW5nCiAgc3RhcnRUaW1lICAgRGF0ZVRpbWUKICBlbmRUaW1lICAgICBEYXRlVGltZQogIHVzZXJJZCAgICAgIEludAogIHVzZXIgICAgICAgIFVzZXIgICAgIEByZWxhdGlvbihmaWVsZHM6IFt1c2VySWRdLCByZWZlcmVuY2VzOiBbaWRdKQp9Cg==",
-  "inlineSchemaHash": "0f1701194f205f2675682733396e75ec94f1dca51598c59ae0072668e24c1086",
+  "inlineSchema": "Ly8gVGhpcyBpcyB5b3VyIFByaXNtYSBzY2hlbWEgZmlsZSwKLy8gbGVhcm4gbW9yZSBhYm91dCBpdCBpbiB0aGUgZG9jczogaHR0cHM6Ly9wcmlzLmx5L2QvcHJpc21hLXNjaGVtYQoKZ2VuZXJhdG9yIGNsaWVudCB7CiAgcHJvdmlkZXIgPSAicHJpc21hLWNsaWVudC1qcyIKICBvdXRwdXQgICA9ICIuL3NyYy9nZW5lcmF0ZWQvY2xpZW50Igp9CgpkYXRhc291cmNlIGRiIHsKICBwcm92aWRlciA9ICJzcWxpdGUiCiAgdXJsICAgICAgPSAiZmlsZTouL2Rldi5kYiIKfQoKbW9kZWwgVXNlciB7CiAgaWQgICAgICAgSW50ICAgICBAaWQgQGRlZmF1bHQoYXV0b2luY3JlbWVudCgpKQogIHVzZXJuYW1lIFN0cmluZwogIGVtYWlsICAgIFN0cmluZwogIHBhc3N3b3JkIFN0cmluZwogIGV2ZW50cyAgIEV2ZW50W10KfQoKbW9kZWwgRXZlbnQgewogIGlkICAgICAgICAgIEludCAgICAgIEBpZCBAZGVmYXVsdChhdXRvaW5jcmVtZW50KCkpCiAgZGVzY3JpcHRpb24gU3RyaW5nCiAgc3RhcnRUaW1lICAgRGF0ZVRpbWUKICBlbmRUaW1lICAgICBEYXRlVGltZQogIHVzZXJJZCAgICAgIEludAogIHVzZXIgICAgICAgIFVzZXIgICAgIEByZWxhdGlvbihmaWVsZHM6IFt1c2VySWRdLCByZWZlcmVuY2VzOiBbaWRdKQp9Cg==",
+  "inlineSchemaHash": "7ca573e1fb3973ad67bb211486f633420ca21052d04892196db14a299bc8d9ec",
   "noEngine": false
 }
 config.dirname = '/'

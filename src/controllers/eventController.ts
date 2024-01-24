@@ -1,5 +1,3 @@
-// src/controllers/eventController.ts
-
 import { NextApiRequest, NextApiResponse } from "next";
 import * as eventService from "@/services/eventService";
 
@@ -9,7 +7,7 @@ export const getAllEvents = async (
 ) => {
   try {
     const events = await eventService.getAllEvents();
-    res.status(200).json(events);
+    return res.status(200).json(events);
   } catch (error) {
     console.error("Error fetching events:", error);
     res.status(500).json({ message: "Internal Server Error" });

@@ -1,5 +1,3 @@
-// pages/api/events.ts
-
 import { NextApiRequest, NextApiResponse } from "next";
 import * as eventController from "@/controllers/eventController";
 

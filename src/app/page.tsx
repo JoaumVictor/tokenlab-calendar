@@ -1,16 +1,22 @@
-import Image from "next/image";
+"use client";
+import "./globals.css";
 
-import icons from "@/assets";
+import { Header } from "@/components";
+import LoginHero from "@/components/loginHero";
 
 export default function Home() {
-  // futura validação de login e redirecionamento
-
+  // validação de login em breve
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-5 p-24">
-      <div className="relative">
-        <Image src={icons.tokenLabLogo} alt="TokenLabLogo" />
-      </div>
-      <p>Olá</p>
+    <main className="flex min-h-screen flex-col items-start justify-between gap-5 w-full">
+      <Header />
+      <LoginHero />
+      <footer
+        style={{
+          borderTopLeftRadius: "50% 30px",
+          borderTopRightRadius: "50% 30px",
+        }}
+        className="bg-blue w-full min-h-[300px]"
+      />
     </main>
   );
 }
