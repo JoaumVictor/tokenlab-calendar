@@ -1,9 +1,10 @@
 export interface Event {
-  id: number;
-  description: string;
   title: string;
-  startTime: Date;
-  endTime: Date;
+  start: Date | string;
   allDay: boolean;
-  userId: number;
+  id: number;
+  extendedProps: {
+    description: string;
+    userId: number;
+  };
 }
