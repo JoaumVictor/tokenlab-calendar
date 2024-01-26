@@ -15,10 +15,6 @@ export default async function handler(
         await userController.createUser(req, res);
         break;
 
-      case "DELETE":
-        await userController.deleteUser(req, res);
-        break;
-
       default:
         res.status(405).json({ message: "Method not allowed" });
         break;

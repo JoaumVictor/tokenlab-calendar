@@ -54,6 +54,12 @@ export const updateUser = async (id: number, data: User) => {
 };
 
 export const deleteUser = async (id: number) => {
+  await prisma.event.deleteMany({
+    where: {
+      creatorId: id,
+    },
+  });
+
   return await prisma.user.delete({
     where: {
       id,
