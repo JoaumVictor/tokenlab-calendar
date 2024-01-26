@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import * as eventController from "@/controllers/eventController";
+import * as userController from "@/controllers/userController";
 
 export default async function handler(
   req: NextApiRequest,
@@ -8,11 +8,7 @@ export default async function handler(
   try {
     switch (req.method) {
       case "GET":
-        await eventController.getAllEvents(req, res);
-        break;
-
-      case "POST":
-        await eventController.createEvent(req, res);
+        await userController.getUserByEmail(req, res);
         break;
 
       default:
