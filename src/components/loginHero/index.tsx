@@ -2,21 +2,25 @@
 
 import { classNames } from "@/util/shared";
 import { BoxContent, Button } from "@/components";
+import RegisterUser from "../registerUser";
+import LoginUser from "../loginUser";
+
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 function LoginHero() {
   const router = useRouter();
 
   const textClass = "text-5xl font-semibold";
 
-  const handleLogin = () => {
-    router.push("/calendar");
-  };
+  const [loginOrRegister, setLoginOrRegister] = useState<"login" | "register">(
+    "login"
+  );
 
   return (
     <BoxContent>
-      <main className="min-h-[620px] h-full flex items-center">
-        <div className="w-1/2 gap-5 flex flex-col items-start justify-center">
+      <main className="min-h-[620px] flex items-center justify-between">
+        <div className="w-1/2 gap-3 flex flex-col items-start justify-center">
           <h1 className={classNames(textClass, "text-primary w-3/4")}>
             Somos o{" "}
             <span className={classNames(textClass, "text-secondary")}>
@@ -39,12 +43,11 @@ function LoginHero() {
             className="text-xl"
           />
         </div>
-        <div className="w-1/2 border-red-500 border flex flex-col items-start justify-center">
-          <p>EM DESENVOLVIMENTO</p>
-          <p>login</p>
-          <p>senha</p>
-          <button onClick={handleLogin}>Entrar</button>
-        </div>
+        {loginOrRegister === "login" ? (
+          <LoginUser handleRegister={() => setLoginOrRegister("register")} />
+        ) : (
+          <RegisterUser handleLogin={() => setLoginOrRegister("login")} />
+        )}
       </main>
     </BoxContent>
   );

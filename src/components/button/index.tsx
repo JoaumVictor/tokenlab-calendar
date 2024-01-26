@@ -13,7 +13,7 @@ function Button({ label, type, onClick, disabled, className }: ButtonI) {
     <button
       className={classNames(
         type === "primary"
-          ? "bg-tertiary disabled:bg-secondary text-white"
+          ? "bg-tertiary disabled:bg-disabled text-white hover:scale-105 transform transition-all"
           : "bg-transparent text-gray-400 hover:text-black",
         "rounded-[8px] px-6 py-3 font-semibold",
         className

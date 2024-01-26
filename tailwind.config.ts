@@ -12,6 +12,7 @@ const config: Config = {
         primary: "#4F86C6",
         secondary: "#0F263E",
         tertiary: "#1868A1",
+        disabled: "#a2c1d1",
         blue: "#0F2A51",
       },
       backgroundImage: {
