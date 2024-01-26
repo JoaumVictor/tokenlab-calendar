@@ -6,5 +6,6 @@ export interface Event {
   extendedProps: {
     description: string;
     userId: number;
+    end?: Date | string;
   };
 }
