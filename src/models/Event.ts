@@ -8,4 +8,5 @@ export interface Event {
     userId: number;
     end?: Date | string;
   };
+  participantsOnEvents?: number[];
 }

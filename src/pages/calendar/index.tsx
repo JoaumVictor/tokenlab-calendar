@@ -69,10 +69,6 @@ function CalendarPage() {
     },
   ]);
 
-  useEffect(() => {
-    setDraggableEvents(mockedEvents);
-  }, []);
-
   const [showModal, setShowModal] = useState<boolean>(false);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [idToDelete, setIdToDelete] = useState<number | null>(0);
@@ -97,6 +93,7 @@ function CalendarPage() {
   >([]);
 
   useEffect(() => {
+    setDraggableEvents(mockedEvents);
     const calendarEl = document.getElementById("draggable-el");
     if (calendarEl) {
       new Draggable(calendarEl, {
@@ -119,11 +116,6 @@ function CalendarPage() {
     }
   }, []);
 
-  const formatDate = (date: any) => {
-    // Lógica para formatar a data conforme necessário
-    return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-  };
-
   const addEvent = (data: DropArg) => {
     const newCalendarEvent = {
       start: data.date.toISOString(),
@@ -139,10 +131,9 @@ function CalendarPage() {
   };
 
   const updateEvent = (info: EventChangeArg) => {
-    console.log(info);
     if (info.event.start) {
       const updatedEvent = {
-        ...info.event,
+        ...info.event.toJSON(),
         title: info.event.title,
         allDay: info.event.allDay,
         id: Number(info.event.id),
@@ -153,6 +144,8 @@ function CalendarPage() {
           end: info.event.end?.toISOString(),
         },
       };
+      console.log("meu objeto atualizado", updatedEvent);
+      console.log("objeto da lib atualizado", info.event);
       const eventIndex = calendarEvents.findIndex(
         (event) => event.id === Number(updatedEvent.id)
       );

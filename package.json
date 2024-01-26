@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "prisma:seed && next dev",
+    "dev": "prisma db seed & next dev",
     "prisma:seed": "prisma db seed",
     "build": "next build",
     "start": "next start",

@@ -3,7 +3,13 @@ import { Event as EventInFront } from "@/models/Event";
 
 const prisma = new PrismaClient();
 
-const formatEventType = (event: Event): EventInFront => {
+interface EventInBack extends Event {
+  participantsOnEvents?: {
+    userId: number;
+  }[];
+}
+
+const formatEventType = (event: EventInBack): EventInFront => {
   return {
     title: event.title,
     start: new Date(event.start),
@@ -11,9 +17,12 @@ const formatEventType = (event: Event): EventInFront => {
     id: event.id,
     extendedProps: {
       description: event.description,
-      userId: event.userId,
+      userId: event.creatorId,
       end: event.end ? new Date(event.end) : undefined,
     },
+    participantsOnEvents:
+      event.participantsOnEvents &&
+      event.participantsOnEvents.map((p) => p.userId),
   };
 };
 
@@ -27,11 +36,11 @@ export const getAllEvents = async (): Promise<EventInFront[]> => {
 };
 
 export const getEventsByUserId = async (
-  userId: number
+  creatorId: number
 ): Promise<EventInFront[]> => {
   const events = await prisma.event.findMany({
     where: {
-      userId,
+      creatorId,
     },
   });
   const formattedEvents: EventInFront[] = events.map(formatEventType);
@@ -44,6 +53,9 @@ export const getEventById = async (
   const event = await prisma.event.findUnique({
     where: {
       id: eventId,
+    },
+    include: {
+      participantsOnEvents: true,
     },
   });
   if (!event) return null;
