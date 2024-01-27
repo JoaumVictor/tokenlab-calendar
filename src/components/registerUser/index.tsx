@@ -4,6 +4,8 @@ import { Button, Input } from "@/components";
 import { useState } from "react";
 import { handleRegister } from "@/api/users";
 import { useRouter } from "next/navigation";
+import toast, { Toaster } from "react-hot-toast";
+import ReactLoading from "react-loading";
 
 interface RegisterUserProps {
   handleLogin: () => void;
@@ -67,15 +69,19 @@ export default function RegisterUser({ handleLogin }: RegisterUserProps) {
           values.password
         );
         if (result.message) {
+          toast.error(result.message, { duration: 5000 });
           setErrorMessage(result.message);
+          setLoadingRegister(false);
           return;
         }
         setErrorMessage("");
-        handleLogin();
+        toast.success("Usuário cadastrado com sucesso!");
+        setTimeout(() => {
+          handleLogin();
+          setLoadingRegister(false);
+        }, 2000);
       } catch (error) {
         console.log(error);
-      } finally {
-        setLoadingRegister(false);
       }
     },
   });
@@ -133,9 +139,16 @@ export default function RegisterUser({ handleLogin }: RegisterUserProps) {
       <div className="w-full flex items-center justify-evenly my-6">
         <Button
           onClick={formik.handleSubmit}
-          label="Registrar"
+          label={
+            loadingRegister ? (
+              <ReactLoading type="spin" color="#fff" height={24} width={24} />
+            ) : (
+              "Registrar"
+            )
+          }
           type="primary"
           disabled={!formik.isValid}
+          className="min-w-[130px] min-h-[55px] flex items-center justify-center"
         />
         <a
           className="cursor-pointer hover:scale-105 transition-all transform"
@@ -144,6 +157,7 @@ export default function RegisterUser({ handleLogin }: RegisterUserProps) {
           Já tenho conta
         </a>
       </div>
+      <Toaster position="top-right" />
     </div>
   );
 }
