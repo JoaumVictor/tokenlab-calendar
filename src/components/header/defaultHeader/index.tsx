@@ -7,11 +7,14 @@ import { BoxContent, Button } from "@/components";
 import Image from "next/image";
 import icons from "@/assets";
 import UserProfileModal from "@/components/modals/userProfileModal";
+import { classNames } from "@/util/shared";
+import CustomModal from "@/components/modals/customModal";
 
 export default function DefaultHeader() {
   const router = useRouter();
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const [userProfileShow, setUserProfileShow] = useState(false);
+  const [showExitModal, setShowExitModal] = useState(false);
 
   const profileOptions = [
     {
@@ -20,11 +23,12 @@ export default function DefaultHeader() {
     },
     {
       label: "Configurações",
-      onClick: () => {},
+      onClick: () => window.alert("Essa implementação está em desenvolvimento"),
     },
     {
       label: "Sair",
-      onClick: () => {},
+      className: "text-red-600 hover:text-red-600",
+      onClick: () => setShowExitModal(true),
     },
   ];
 
@@ -40,11 +44,11 @@ export default function DefaultHeader() {
           </div>
 
           <div className="flex items-center justify-center gap-2">
-            <Popover className="min-w-[80px] overflow-visible flex items-center justify-center">
+            <Popover className="min-w-[80px] flex items-center justify-center">
               {({ open }) => (
                 <div className="relative w-full h-full flex items-center justify-center">
                   <Popover.Button>
-                    <div className="max-w-[70px] w-full cursor-pointer hover:scale-110 transform transition-all">
+                    <div className="max-w-[70px] w-full cursor-pointer border-none border-0 hover:scale-110 transform transition-all">
                       <Image
                         src={images.avatar}
                         alt="Avatar"
@@ -58,7 +62,10 @@ export default function DefaultHeader() {
                         <ul className="dropdown-list text-center">
                           {profileOptions.map((option) => (
                             <li
-                              className="dropdown-item text-[16px] text-nowrap text-gray-600 hover:font-bold transform transition-all hover:text-black cursor-pointer"
+                              className={classNames(
+                                "dropdown-item text-[16px] text-nowrap text-gray-600 font-bold hover:scale-105 transform transition-all cursor-pointer",
+                                option?.className
+                              )}
                               onClick={option.onClick}
                               key={option.label}
                             >
@@ -76,6 +83,24 @@ export default function DefaultHeader() {
           </div>
         </div>
       </BoxContent>
+      <CustomModal
+        isOpen={showExitModal}
+        onClose={() => setShowExitModal(false)}
+        type="error"
+        title="Deseja realmente sair?"
+        message={
+          <p>
+            Tarefas não salvas da lista de eventos para dentro do calendário{" "}
+            <span className="text-red-500">serão perdidos</span>.
+          </p>
+        }
+        onConfirm={() => {
+          if (logout) {
+            logout();
+            router.push("/login");
+          }
+        }}
+      />
       <UserProfileModal
         isOpen={userProfileShow}
         onClose={() => setUserProfileShow(false)}

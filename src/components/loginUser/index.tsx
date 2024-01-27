@@ -53,14 +53,17 @@ export default function LoginUser({ handleRegister }: LoginUserProps) {
         const result = await handleLogin(values.email, values.password);
         if (result.message) {
           setErrorMessage(result.message);
+          setLoadingHandleLogin(false);
           return;
         }
         setErrorMessage("");
         login(result);
         setTimeout(() => {
           router.push("/calendar");
+          setLoadingHandleLogin(false);
         }, 1000);
-      } finally {
+      } catch (error) {
+        console.log(error);
         setLoadingHandleLogin(false);
       }
     },
