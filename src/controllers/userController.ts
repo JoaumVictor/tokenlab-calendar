@@ -78,7 +78,7 @@ export const createUser = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const userExist = await userService.getUserByEmail(req.body.email);
     if (userExist) {
-      return res.status(409).json({ message: "Usuário já existe" });
+      return res.status(409).json({ message: "Email já cadastrado" });
     }
     const user = await userService.createUser(req.body);
     return res.status(201).json(user);

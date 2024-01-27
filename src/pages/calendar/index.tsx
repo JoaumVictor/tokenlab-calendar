@@ -20,6 +20,7 @@ import {
   EventSourceInput,
 } from "@fullcalendar/core/index.js";
 import { classNames } from "@/util/shared";
+import { AuthProvider } from "@/context";
 
 const mockedEvents = [
   {
@@ -156,60 +157,64 @@ function CalendarPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-start justify-start gap-5 w-full">
-      <Header />
-      <main className="flex flex-row items-center justify-center p-24 w-full h-full gap-20">
-        <FullCalendar
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          headerToolbar={{
-            left: "prev,next today",
-            center: "title",
-            right: "dayGridMonth,timeGridWeek,timeGridDay",
-          }}
-          locales={[ptBrLocale]}
-          locale="pt-br"
-          dayHeaderFormat={{ weekday: "narrow" }}
-          titleFormat={{ year: "numeric", month: "short", day: "numeric" }}
-          events={calendarEvents as EventSourceInput}
-          nowIndicator={true}
-          editable={true}
-          droppable={true}
-          selectable={true}
-          selectMirror={true}
-          drop={(data) => addEvent(data)}
-          eventChange={(info) => updateEvent(info)}
-          // dateClick={}
-          // eventClick={}
-        />
-        <div
-          id="draggable-el"
-          className="bg-primary w-1/6 border-2 rounded-[8px]"
-        >
-          <h1 className="font-semibold text-center p-3 text-white">Eventos</h1>
-          <div className="flex flex-col gap-2 p-2 overflow-y-auto min-h-[50vh]">
-            {draggableEvents?.map((event) => (
-              <div
-                className={classNames(
-                  "bg-gray-200 rounded-[4px] p-2 fc-event cursor-pointer hover:bg-white",
-                  nameOfEventsInCalender.includes(event.title) &&
-                    "border-4 border-l-amber-500"
-                )}
-                draggable="true"
-                title={event.title}
-                key={event.id}
-                data-event-description={event.extendedProps.description}
-                data-event-user-id={event.extendedProps.userId}
-              >
-                <p className="font-semibold text-[16px]">{event.title}</p>
-                {nameOfEventsInCalender?.includes(event.title) && (
-                  <p className="text-[14px] text-gray-500">Na Agenda</p>
-                )}
-              </div>
-            ))}
+    <AuthProvider>
+      <div className="flex min-h-screen flex-col items-start justify-start gap-5 w-full">
+        <Header headerType="default" />
+        <main className="flex flex-row items-center justify-center p-24 w-full h-full gap-20">
+          <FullCalendar
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            headerToolbar={{
+              left: "prev,next today",
+              center: "title",
+              right: "dayGridMonth,timeGridWeek,timeGridDay",
+            }}
+            locales={[ptBrLocale]}
+            locale="pt-br"
+            dayHeaderFormat={{ weekday: "narrow" }}
+            titleFormat={{ year: "numeric", month: "short", day: "numeric" }}
+            events={calendarEvents as EventSourceInput}
+            nowIndicator={true}
+            editable={true}
+            droppable={true}
+            selectable={true}
+            selectMirror={true}
+            drop={(data) => addEvent(data)}
+            eventChange={(info) => updateEvent(info)}
+            // dateClick={}
+            // eventClick={}
+          />
+          <div
+            id="draggable-el"
+            className="bg-primary w-1/6 border-2 rounded-[8px]"
+          >
+            <h1 className="font-semibold text-center p-3 text-white">
+              Eventos
+            </h1>
+            <div className="flex flex-col gap-2 p-2 overflow-y-auto min-h-[50vh]">
+              {draggableEvents?.map((event) => (
+                <div
+                  className={classNames(
+                    "bg-gray-200 rounded-[4px] p-2 fc-event cursor-pointer hover:bg-white",
+                    nameOfEventsInCalender.includes(event.title) &&
+                      "border-4 border-l-amber-500"
+                  )}
+                  draggable="true"
+                  title={event.title}
+                  key={event.id}
+                  data-event-description={event.extendedProps.description}
+                  data-event-user-id={event.extendedProps.userId}
+                >
+                  <p className="font-semibold text-[16px]">{event.title}</p>
+                  {nameOfEventsInCalender?.includes(event.title) && (
+                    <p className="text-[14px] text-gray-500">Na Agenda</p>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </AuthProvider>
   );
 }
 

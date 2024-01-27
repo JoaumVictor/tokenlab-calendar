@@ -25,21 +25,31 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
   const router = useRouter();
   const [user, setUser] = useState<UserProps | null>(null);
 
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
   const login = (userData: UserProps) => {
-    console.log("userData", userData);
     setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
   };
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem("user");
   };
 
   useEffect(() => {
-    if (!user) {
-      router.push("/");
-    } else {
-      router.push("/calendar");
-    }
+    const redirectDelay = setTimeout(() => {
+      if (!user) {
+        router.push("/login");
+      }
+    }, 500);
+
+    return () => clearTimeout(redirectDelay);
   }, [user, router]);
 
   return (

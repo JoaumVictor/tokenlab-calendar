@@ -1,18 +1,29 @@
 import * as yup from "yup";
 import { useFormik } from "formik";
 import { Button, Input } from "@/components";
+import { useState } from "react";
+import { handleRegister } from "@/api/users";
+import { useRouter } from "next/navigation";
 
 interface RegisterUserProps {
   handleLogin: () => void;
 }
 
 export default function RegisterUser({ handleLogin }: RegisterUserProps) {
+  const [loadingRegister, setLoadingRegister] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const router = useRouter();
+
   const validationSchema = yup.object({
     name: yup
       .string()
       .required("Esse campo é obrigatório")
       .min(3, "O nome deve ter pelo menos 3 caracteres")
-      .max(35, "O nome não deve exceder 35 caracteres"),
+      .max(35, "O nome não deve exceder 35 caracteres")
+      .matches(
+        /^[a-zA-ZÀ-ÖØ-öø-ÿ\s]*$/,
+        "O nome não pode conter números ou símbolos"
+      ),
     email: yup
       .string()
       .email("Digite um email válido.")
@@ -41,14 +52,31 @@ export default function RegisterUser({ handleLogin }: RegisterUserProps) {
       confirmPassword: "",
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       if (!formik.isValid) {
         formik.touched.name = true;
         formik.touched.email = true;
         formik.touched.password = true;
         formik.touched.confirmPassword = true;
       }
-      console.log("válido", values);
+      try {
+        setLoadingRegister(true);
+        const result = await handleRegister(
+          values.name,
+          values.email,
+          values.password
+        );
+        if (result.message) {
+          setErrorMessage(result.message);
+          return;
+        }
+        setErrorMessage("");
+        handleLogin();
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoadingRegister(false);
+      }
     },
   });
 
@@ -61,7 +89,7 @@ export default function RegisterUser({ handleLogin }: RegisterUserProps) {
         value={formik.values.name}
         onChange={formik.handleChange}
         handleBlur={formik.handleBlur}
-        placeholder="John Due"
+        placeholder="Maria"
         error={formik.errors.name}
         touched={formik.touched.name}
       />
@@ -75,7 +103,7 @@ export default function RegisterUser({ handleLogin }: RegisterUserProps) {
           ) => void
         }
         handleBlur={formik.handleBlur}
-        placeholder="JonDue@gmail.com"
+        placeholder="Maria@gmail.com"
         error={formik.errors.email}
         touched={formik.touched.email}
       />
@@ -101,6 +129,7 @@ export default function RegisterUser({ handleLogin }: RegisterUserProps) {
         error={formik.errors.confirmPassword}
         touched={formik.touched.confirmPassword}
       />
+      <p className="text-red-500">{errorMessage}</p>
       <div className="w-full flex items-center justify-evenly my-6">
         <Button
           onClick={formik.handleSubmit}

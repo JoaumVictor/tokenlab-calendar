@@ -3,12 +3,20 @@ import { classNames } from "../../util/shared";
 interface ButtonI {
   label: string | JSX.Element;
   type: "primary" | "secondary";
+  typeButton?: "button" | "submit" | "reset";
   onClick?: () => void;
   disabled?: boolean;
   className?: string;
 }
 
-function Button({ label, type, onClick, disabled, className }: ButtonI) {
+function Button({
+  label,
+  type,
+  typeButton = "button",
+  onClick,
+  disabled,
+  className,
+}: ButtonI) {
   return (
     <button
       className={classNames(
@@ -18,6 +26,7 @@ function Button({ label, type, onClick, disabled, className }: ButtonI) {
         "rounded-[8px] px-6 py-3 font-semibold",
         className
       )}
+      type={typeButton}
       onClick={onClick}
       disabled={disabled}
     >

@@ -1,5 +1,6 @@
 import * as yup from "yup";
 import { useFormik } from "formik";
+import { useRouter } from "next/navigation";
 
 import { Input, Button } from "@/components";
 import Image from "next/image";
@@ -17,6 +18,7 @@ export default function LoginUser({ handleRegister }: LoginUserProps) {
   const [loadingHandleLogin, setLoadingHandleLogin] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const { login } = useContext(AuthContext);
+  const router = useRouter();
 
   const validationSchema = yup.object({
     email: yup
@@ -55,6 +57,9 @@ export default function LoginUser({ handleRegister }: LoginUserProps) {
         }
         setErrorMessage("");
         login(result);
+        setTimeout(() => {
+          router.push("/calendar");
+        }, 1000);
       } finally {
         setLoadingHandleLogin(false);
       }
@@ -70,7 +75,7 @@ export default function LoginUser({ handleRegister }: LoginUserProps) {
         value={formik.values.email}
         onChange={formik.handleChange}
         handleBlur={formik.handleBlur}
-        placeholder="JohDue@gmail.com"
+        placeholder="João@gmail.com"
         error={formik.errors.email}
         touched={formik.touched.email}
       />
@@ -97,6 +102,7 @@ export default function LoginUser({ handleRegister }: LoginUserProps) {
             )
           }
           type="primary"
+          typeButton="submit"
           disabled={!formik.isValid || loadingHandleLogin}
         />
         <a
