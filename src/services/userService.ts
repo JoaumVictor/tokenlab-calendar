@@ -2,6 +2,14 @@ import { PrismaClient, User } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+export const handleLogin = async (email: string, password: string) => {
+  return await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+};
+
 export const getAllUsers = async () => {
   return await prisma.user.findMany({
     select: {

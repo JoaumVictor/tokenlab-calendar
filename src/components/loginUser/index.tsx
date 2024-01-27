@@ -4,12 +4,20 @@ import { useFormik } from "formik";
 import { Input, Button } from "@/components";
 import Image from "next/image";
 import icons from "@/assets";
+import { handleLogin } from "@/api/users";
+import { useState, useContext } from "react";
+import ReactLoading from "react-loading";
+import AuthContext from "@/context";
 
 interface LoginUserProps {
   handleRegister: () => void;
 }
 
 export default function LoginUser({ handleRegister }: LoginUserProps) {
+  const [loadingHandleLogin, setLoadingHandleLogin] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const { login } = useContext(AuthContext);
+
   const validationSchema = yup.object({
     email: yup
       .string()
@@ -33,12 +41,23 @@ export default function LoginUser({ handleRegister }: LoginUserProps) {
       password: "",
     },
     validationSchema: validationSchema,
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       if (!formik.isValid) {
         formik.touched.email = true;
         formik.touched.password = true;
       }
-      console.log("válido", values);
+      try {
+        setLoadingHandleLogin(true);
+        const result = await handleLogin(values.email, values.password);
+        if (result.message) {
+          setErrorMessage(result.message);
+          return;
+        }
+        setErrorMessage("");
+        login(result);
+      } finally {
+        setLoadingHandleLogin(false);
+      }
     },
   });
 
@@ -66,12 +85,19 @@ export default function LoginUser({ handleRegister }: LoginUserProps) {
         error={formik.errors.password}
         touched={formik.touched.password}
       />
+      <p className="text-red-500">{errorMessage}</p>
       <div className="w-full flex items-center justify-evenly my-6">
         <Button
           onClick={formik.handleSubmit}
-          label="Entrar"
+          label={
+            loadingHandleLogin ? (
+              <ReactLoading type="spin" color="#fff" height={24} width={24} />
+            ) : (
+              "Entrar"
+            )
+          }
           type="primary"
-          disabled={!formik.isValid}
+          disabled={!formik.isValid || loadingHandleLogin}
         />
         <a
           className="cursor-pointer hover:scale-105 transition-all transform"

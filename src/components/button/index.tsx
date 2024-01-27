@@ -1,7 +1,7 @@
 import { classNames } from "../../util/shared";
 
 interface ButtonI {
-  label: string;
+  label: string | JSX.Element;
   type: "primary" | "secondary";
   onClick?: () => void;
   disabled?: boolean;

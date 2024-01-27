@@ -12,17 +12,17 @@ async function seedDatabase() {
       {
         name: "João",
         email: "joao@gmail.com",
-        password: "123456",
+        password: "123asdF",
       },
       {
         name: "Baianor",
         email: "baianor@gmail.com",
-        password: "123456",
+        password: "123asdF",
       },
       {
         name: "Vitim",
         email: "vitinho@gmail.com",
-        password: "bololohaha",
+        password: "123asdF",
       },
     ];
 
