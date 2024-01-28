@@ -1,7 +1,7 @@
 "use client";
 
 import "@/app/globals.css";
-import { Header } from "@/components";
+import { Header, Button } from "@/components";
 import { Event } from "@/models/Event";
 
 import FullCalendar from "@fullcalendar/react";
@@ -20,9 +20,10 @@ import {
   EventInput,
   EventSourceInput,
 } from "@fullcalendar/core/index.js";
-import { classNames } from "@/util/shared";
+import { classNames, getFormattedDate } from "@/util/shared";
 import { getEventsByUserId } from "@/api/events";
 import toast from "react-hot-toast";
+import CreateEventModal from "@/components/modals/createEventModal";
 
 function CalendarPage() {
   const { user } = useContext(AuthContext);
@@ -41,7 +42,8 @@ function CalendarPage() {
     },
   ]);
 
-  const [showModal, setShowModal] = useState<boolean>(false);
+  const [showCreateEventModal, setShowCreateEventModal] =
+    useState<boolean>(false);
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [idToDelete, setIdToDelete] = useState<number | null>(0);
   const [newEvent, setNewEvent] = useState<Event>({
@@ -182,15 +184,32 @@ function CalendarPage() {
                 data-event-description={event.extendedProps.description}
                 data-event-user-id={event.extendedProps.userId}
               >
-                <p className="font-semibold text-[16px]">{event.title}</p>
+                <div className="flex w-full items-center justify-between">
+                  <p className="font-semibold text-[16px]">{event.title}</p>
+                  <p>Dia {getFormattedDate(event.start, "day")}</p>
+                </div>
                 {nameOfEventsInCalender?.includes(event.title) && (
                   <p className="text-[14px] text-gray-500">Na Agenda</p>
                 )}
               </div>
             ))}
           </div>
+          <div className="w-full p-4 flex items-center justify-center">
+            <Button
+              type="primary"
+              label="Adicionar Evento"
+              onClick={() => setShowCreateEventModal(true)}
+              disabled={false}
+              typeButton="button"
+            />
+          </div>
         </div>
       </main>
+      <CreateEventModal
+        isOpen={showCreateEventModal}
+        onClose={() => setShowCreateEventModal(false)}
+        onConfirm={() => {}}
+      />
     </div>
   );
 }
