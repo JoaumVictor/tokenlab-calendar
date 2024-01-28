@@ -30,13 +30,13 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
   const forceGetUserFromLocalStorage = () => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
+      console.log("achei o usuário", storedUser);
       setUser(JSON.parse(storedUser));
     } else {
       router.push("/login");
     }
   };
 
-  // ESSA MISERA NÃO ATUALIZA
   useEffect(() => {
     forceGetUserFromLocalStorage();
   }, []);

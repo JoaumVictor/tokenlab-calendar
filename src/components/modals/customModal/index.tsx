@@ -61,7 +61,7 @@ const CustomModal: React.FC<ModalProps> = ({
                   <h1 className="text-lg font-semibold">{title}</h1>
                   {typeIcons[type]}
                 </div>
-                <p>{message}</p>
+                <span>{message}</span>
               </div>
               <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button

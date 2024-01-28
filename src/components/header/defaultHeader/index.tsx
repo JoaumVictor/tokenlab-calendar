@@ -37,7 +37,7 @@ export default function DefaultHeader() {
       <BoxContent>
         <div className="flex items-center justify-between">
           <div
-            onClick={() => router.push("/login")}
+            onClick={() => router.push("https://www.tokenlab.com.br/pt/home")}
             className="relative max-w-[202px] w-full cursor-pointer"
           >
             <Image src={icons.tokenLabLogo} alt="TokenLabLogo" />
@@ -89,10 +89,10 @@ export default function DefaultHeader() {
         type="error"
         title="Deseja realmente sair?"
         message={
-          <p>
+          <span>
             Tarefas não salvas da lista de eventos para dentro do calendário{" "}
             <span className="text-red-500">serão perdidos</span>.
-          </p>
+          </span>
         }
         onConfirm={() => {
           if (logout) {

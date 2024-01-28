@@ -75,7 +75,7 @@ export default function RegisterUser({ handleLogin }: RegisterUserProps) {
           return;
         }
         setErrorMessage("");
-        toast.success("Usuário cadastrado com sucesso!");
+        toast.success("Usuário cadastrado com sucesso!", { duration: 4000 });
         setTimeout(() => {
           handleLogin();
           setLoadingRegister(false);

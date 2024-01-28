@@ -3,7 +3,6 @@
 import "@/app/globals.css";
 import { Header, Button } from "@/components";
 import { Event } from "@/models/Event";
-
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -24,41 +23,27 @@ import { classNames, getFormattedDate } from "@/util/shared";
 import { getEventsByUserId } from "@/api/events";
 import toast, { Toaster } from "react-hot-toast";
 import CreateEventModal from "@/components/modals/createEventModal";
+import EventModal from "@/components/modals/eventModal";
+import ReactLoading from "react-loading";
 
 function CalendarPage() {
   const { user, forceGetUserFromLocalStorage } = useContext(AuthContext);
 
-  useEffect(() => {
-    if (user !== null) {
-      const getAllEventsByUserId = async () => {
-        const response: Event[] = await getEventsByUserId(String(user?.id));
-        const responseDraggable = response?.filter(
-          (event, index, self) =>
-            index === self.findIndex((t) => t.id === event.id)
-        );
-        if (response) {
-          setDraggableEvents(responseDraggable);
-          setCalendarEvents(response);
-        } else {
-          toast.error("Erro ao buscar eventos");
-        }
-      };
-      getAllEventsByUserId();
-    } else {
-      forceGetUserFromLocalStorage;
-    }
-  }, [user, forceGetUserFromLocalStorage]);
+  const [loadingDraggableEvents, setLoadingDraggableEvents] =
+    useState<boolean>(true);
+  const [draggableEvents, setDraggableEvents] = useState<Event[]>(
+    [] as Event[]
+  );
 
-  const [draggableEvents, setDraggableEvents] = useState<Event[]>();
-  const [calendarEvents, setCalendarEvents] = useState<Event[]>();
+  const [calendarEvents, setCalendarEvents] = useState<Event[]>([] as Event[]);
 
   const [showCreateEventModal, setShowCreateEventModal] =
     useState<boolean>(false);
   const [localToCreateEvent, setLocalToCreateEvent] =
     useState<string>("draggable");
 
-  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
-  const [idToDelete, setIdToDelete] = useState<number | null>(0);
+  const [showEventModal, setShowEventModal] = useState<boolean>(false);
+  const [eventOnId, setEventOnId] = useState<number>(0);
 
   const [newEvent, setNewEvent] = useState<Event>({
     title: "titulo inicial",
@@ -77,11 +62,16 @@ function CalendarPage() {
 
   useEffect(() => {
     if (calendarEvents) {
-      setNameOfEventsInCalender(calendarEvents.map((event) => event.title));
+      setNameOfEventsInCalender(
+        calendarEvents
+          .filter((event) => event.id !== 12345)
+          .map((event) => event.title)
+      );
     }
   }, [calendarEvents]);
 
   useEffect(() => {
+    console.log("página do calendário carregada");
     const calendarEl = document.getElementById("draggable-el");
     if (calendarEl) {
       new Draggable(calendarEl, {
@@ -144,7 +134,6 @@ function CalendarPage() {
 
   useEffect(() => {
     const createEventModalOnConfirm = () => {
-      console.log("ENTRA NO CREATE EVENT DO USE EFFECT");
       if (localToCreateEvent === "calendar") {
         if (calendarEvents && draggableEvents) {
           setCalendarEvents([...calendarEvents, newEvent]);
@@ -163,6 +152,37 @@ function CalendarPage() {
     }
   }, [newEvent]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (user !== null) {
+      console.log(
+        "usuário encontrado, inicia a busca pelos eventos do usuário"
+      );
+      const getAllEventsByUserId = async () => {
+        const response: Event[] = await getEventsByUserId(String(user?.id));
+        const responseDraggable = response?.filter((event, index, self) => {
+          if (event.id === 12345) {
+            return true;
+          } else {
+            return index === self.findIndex((t) => t.id === event.id);
+          }
+        });
+        if (response) {
+          setDraggableEvents(responseDraggable);
+          setCalendarEvents(response);
+        } else {
+          toast.error("Erro ao buscar eventos");
+        }
+        setTimeout(() => {
+          setLoadingDraggableEvents(false);
+        }, 500);
+      };
+      getAllEventsByUserId();
+    } else {
+      console.log("usuário não encontrado, inicia a busca pelo usuário no LS");
+      forceGetUserFromLocalStorage();
+    }
+  }, [user, forceGetUserFromLocalStorage]);
+
   const updateEvent = (info: EventChangeArg) => {
     if (info.event.start && calendarEvents && draggableEvents) {
       const updatedEvent = {
@@ -177,7 +197,6 @@ function CalendarPage() {
           end: info.event.end?.toISOString(),
         },
       };
-      // console.log("meu objeto atualizado", updatedEvent);
       console.log("objeto da lib atualizado", info.event);
       const eventIndexInCalendar = calendarEvents.findIndex(
         (event) => event.id === Number(updatedEvent.id)
@@ -206,13 +225,16 @@ function CalendarPage() {
     if (!result) return "";
     if (result.length === 0) return "";
     return result.length > 1 ? (
-      <p className="text-[14px] text-gray-500">
+      <p className="text-[13px] text-gray-500">
         {`Dias ${result[0]}, ${result[1]} ...`}
       </p>
     ) : (
       <p className="text-[14px] text-gray-500">Dia {result[0]}</p>
     );
   };
+
+  const formatEventTitle = (title: string) =>
+    title.length >= 23 ? `${title.slice(0, 23)}...` : title;
 
   return (
     <div className="flex min-h-screen flex-col items-start justify-start gap-5 w-full">
@@ -237,15 +259,10 @@ function CalendarPage() {
           selectMirror={true}
           drop={(data) => dropAndAddEventInCalendar(data)}
           eventChange={(info) => updateEvent(info)}
-          dateClick={(data) => {
-            setNewEvent({
-              ...newEvent,
-              start: data.date,
-            });
-            setLocalToCreateEvent("calendar");
-            setShowCreateEventModal(true);
+          eventClick={(data) => {
+            setEventOnId(Number(data.event.id));
+            setShowEventModal(true);
           }}
-          // eventClick={}
         />
         <div
           id="draggable-el"
@@ -253,29 +270,43 @@ function CalendarPage() {
         >
           <h1 className="font-semibold text-center p-3 text-white">Eventos</h1>
           <div className="flex flex-col gap-2 p-2 overflow-y-scroll h-[50vh]">
-            {draggableEvents?.map((event) => (
-              <div
-                className={classNames(
-                  "bg-gray-200 rounded-[4px] p-2 fc-event cursor-pointer hover:bg-white",
-                  nameOfEventsInCalender.includes(event.title) &&
-                    "border-4 border-l-amber-500"
-                )}
-                draggable="true"
-                title={event.title}
-                key={event.id}
-              >
-                <div className="flex w-full items-center justify-between">
-                  <p className="font-semibold text-[16px]">{`${event.title.slice(
-                    0,
-                    30
-                  )}...`}</p>
-                  {formatDaysInDraggableCard(event.title)}
+            {draggableEvents?.length === 0 && (
+              <p className="text-center text-slate-50 mt-36">Sem eventos</p>
+            )}
+
+            {!loadingDraggableEvents ? (
+              draggableEvents?.map((event) => (
+                <div
+                  className={classNames(
+                    "bg-gray-200 rounded-[4px] p-2 fc-event cursor-pointer hover:bg-white",
+                    nameOfEventsInCalender.includes(event.title) &&
+                      "border-4 border-l-amber-500"
+                  )}
+                  draggable="true"
+                  title={event.title}
+                  key={event.id}
+                  data-event-user-id={event.extendedProps.userId}
+                  data-event-description={event.extendedProps.description}
+                >
+                  <div className="flex w-full items-center justify-between">
+                    <p className="font-semibold text-[16px]">
+                      {formatEventTitle(event.title)}
+                    </p>
+                    {formatDaysInDraggableCard(event.title)}
+                  </div>
+                  {nameOfEventsInCalender?.includes(event.title) && (
+                    <p className="text-[14px] text-gray-500">Na Agenda</p>
+                  )}
                 </div>
-                {nameOfEventsInCalender?.includes(event.title) && (
-                  <p className="text-[14px] text-gray-500">Na Agenda</p>
-                )}
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center gap-2 w-full h-full">
+                <ReactLoading type="spin" color="#FFF" height={80} width={80} />
+                <p className="text-center text-slate-50 font-bold">
+                  Carregando...
+                </p>
               </div>
-            ))}
+            )}
           </div>
           <div className="w-full p-4 flex items-center justify-center">
             <Button
@@ -299,6 +330,15 @@ function CalendarPage() {
         newEvent={newEvent}
         setNewEvent={setNewEvent}
         draggableEvents={draggableEvents ? draggableEvents : []}
+      />
+      <EventModal
+        isOpen={showEventModal}
+        onClose={() => setShowEventModal(false)}
+        eventOnId={eventOnId}
+        draggableEvents={draggableEvents ? draggableEvents : []}
+        calendarEvents={calendarEvents ? calendarEvents : []}
+        setCalendarEvents={setCalendarEvents}
+        setDraggableEvents={setDraggableEvents}
       />
       <Toaster position="top-right" />
     </div>

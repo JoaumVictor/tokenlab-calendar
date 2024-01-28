@@ -13,7 +13,6 @@ export const handleCreateEvent = async (name: string, date: string) => {
 
 export const getEventsByUserId = async (userId: string) => {
   try {
-    console.log("userId", userId);
     const response = await api.get(`/events/user/${userId}`);
     return response.data;
   } catch (error) {

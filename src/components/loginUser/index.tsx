@@ -40,13 +40,10 @@ export default function LoginUser({ handleRegister }: LoginUserProps) {
 
   useEffect(() => {
     if (user) {
-      console.log("USER CHEGOU NO ESTADO", user);
       setTimeout(() => {
         router.push("/calendar");
         setLoadingHandleLogin(false);
       }, 500);
-    } else {
-      console.log("USER NÃO CHEGOU NO ESTADO AINDA");
     }
   }, [user]);
 
@@ -70,9 +67,10 @@ export default function LoginUser({ handleRegister }: LoginUserProps) {
           return;
         }
         setErrorMessage("");
-        console.log("RESULT", result);
         login(result);
-        localStorage.setItem("user", JSON.stringify(result));
+        console.log(
+          "efetuei o login, usuário setado no contexto e no localStorage"
+        );
       } catch (error) {
         console.log(error);
         setLoadingHandleLogin(false);
