@@ -22,38 +22,52 @@ import {
 } from "@fullcalendar/core/index.js";
 import { classNames, getFormattedDate } from "@/util/shared";
 import { getEventsByUserId } from "@/api/events";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import CreateEventModal from "@/components/modals/createEventModal";
 
 function CalendarPage() {
-  const { user } = useContext(AuthContext);
+  const { user, forceGetUserFromLocalStorage } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (user !== null) {
+      const getAllEventsByUserId = async () => {
+        const response: Event[] = await getEventsByUserId(String(user?.id));
+        const responseDraggable = response?.filter(
+          (event, index, self) =>
+            index === self.findIndex((t) => t.id === event.id)
+        );
+        if (response) {
+          setDraggableEvents(responseDraggable);
+          setCalendarEvents(response);
+        } else {
+          toast.error("Erro ao buscar eventos");
+        }
+      };
+      getAllEventsByUserId();
+    } else {
+      forceGetUserFromLocalStorage;
+    }
+  }, [user, forceGetUserFromLocalStorage]);
 
   const [draggableEvents, setDraggableEvents] = useState<Event[]>();
-  const [calendarEvents, setCalendarEvents] = useState<Event[]>([
-    {
-      title: "Teste 1 - Lavar Roupa",
-      start: new Date().toISOString(),
-      allDay: false,
-      id: Number(new Date()) - 1,
-      extendedProps: {
-        description: "lorem ipsum dolor sit amet",
-        userId: 1,
-      },
-    },
-  ]);
+  const [calendarEvents, setCalendarEvents] = useState<Event[]>();
 
   const [showCreateEventModal, setShowCreateEventModal] =
     useState<boolean>(false);
+  const [localToCreateEvent, setLocalToCreateEvent] =
+    useState<string>("draggable");
+
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [idToDelete, setIdToDelete] = useState<number | null>(0);
+
   const [newEvent, setNewEvent] = useState<Event>({
-    title: "",
-    start: new Date(),
+    title: "titulo inicial",
+    start: null,
     allDay: false,
     id: 0,
     extendedProps: {
       description: "",
-      userId: 0,
+      userId: Number(user?.id),
     },
   });
 
@@ -62,24 +76,10 @@ function CalendarPage() {
   >([]);
 
   useEffect(() => {
-    setNameOfEventsInCalender(calendarEvents.map((event) => event.title));
-    console.log("calendario atualizou", calendarEvents);
-  }, [calendarEvents]);
-
-  useEffect(() => {
-    if (user) {
-      const getAllEventsByUserId = async () => {
-        const response = await getEventsByUserId(String(user?.id));
-        if (response) {
-          setDraggableEvents(response);
-          setCalendarEvents(response);
-        } else {
-          toast.error("Erro ao buscar eventos");
-        }
-      };
-      getAllEventsByUserId();
+    if (calendarEvents) {
+      setNameOfEventsInCalender(calendarEvents.map((event) => event.title));
     }
-  }, [user]);
+  }, [calendarEvents]);
 
   useEffect(() => {
     const calendarEl = document.getElementById("draggable-el");
@@ -100,10 +100,23 @@ function CalendarPage() {
     }
   }, []);
 
-  const addEvent = (data: DropArg) => {
+  const clearNewEvent = () => {
+    setNewEvent({
+      title: "",
+      start: null,
+      allDay: false,
+      id: 0,
+      extendedProps: {
+        description: "",
+        userId: Number(user?.id),
+      },
+    });
+  };
+
+  const dropAndAddEventInCalendar = (data: DropArg) => {
     const newCalendarEvent = {
       start: data.date.toISOString(),
-      title: data.draggedEl.innerText,
+      title: data.draggedEl.title,
       allDay: data.allDay,
       id: new Date().getTime(),
       extendedProps: {
@@ -111,11 +124,47 @@ function CalendarPage() {
         userId: Number(data.draggedEl.dataset.eventUserId),
       },
     };
-    setCalendarEvents([...calendarEvents, newCalendarEvent]);
+
+    if (calendarEvents && draggableEvents) {
+      setCalendarEvents([...calendarEvents, newCalendarEvent]);
+
+      const eventIndexInDraggable = draggableEvents?.findIndex(
+        (event) => event.title === newCalendarEvent.title
+      );
+
+      const updatedEventsInDraggable = [...draggableEvents];
+
+      updatedEventsInDraggable[eventIndexInDraggable] = newCalendarEvent;
+
+      setDraggableEvents(updatedEventsInDraggable);
+    } else {
+      setCalendarEvents([newCalendarEvent]);
+    }
   };
 
+  useEffect(() => {
+    const createEventModalOnConfirm = () => {
+      console.log("ENTRA NO CREATE EVENT DO USE EFFECT");
+      if (localToCreateEvent === "calendar") {
+        if (calendarEvents && draggableEvents) {
+          setCalendarEvents([...calendarEvents, newEvent]);
+          setDraggableEvents([...draggableEvents, newEvent]);
+        }
+      } else {
+        if (draggableEvents) {
+          setDraggableEvents([...draggableEvents, newEvent]);
+        }
+        clearNewEvent();
+      }
+    };
+
+    if (newEvent.title !== "") {
+      createEventModalOnConfirm();
+    }
+  }, [newEvent]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const updateEvent = (info: EventChangeArg) => {
-    if (info.event.start) {
+    if (info.event.start && calendarEvents && draggableEvents) {
       const updatedEvent = {
         ...info.event.toJSON(),
         title: info.event.title,
@@ -129,14 +178,40 @@ function CalendarPage() {
         },
       };
       // console.log("meu objeto atualizado", updatedEvent);
-      // console.log("objeto da lib atualizado", info.event);
-      const eventIndex = calendarEvents.findIndex(
+      console.log("objeto da lib atualizado", info.event);
+      const eventIndexInCalendar = calendarEvents.findIndex(
         (event) => event.id === Number(updatedEvent.id)
       );
-      const updatedEvents = [...calendarEvents];
-      updatedEvents[eventIndex] = updatedEvent;
-      setCalendarEvents(updatedEvents);
+      const updatedEventsInCalendar = [...calendarEvents];
+      updatedEventsInCalendar[eventIndexInCalendar] = updatedEvent;
+      setCalendarEvents(updatedEventsInCalendar);
+
+      const eventIndexInDraggable = draggableEvents?.findIndex(
+        (event) => event.id === Number(updatedEvent.id)
+      );
+      const updatedEventsInDraggable = [...draggableEvents];
+      updatedEventsInDraggable[eventIndexInDraggable] = updatedEvent;
+      setDraggableEvents(updatedEventsInDraggable);
     }
+  };
+
+  const formatDaysInDraggableCard = (title: string) => {
+    const result = calendarEvents
+      ?.filter((event) => event.title === title)
+      .map((event) =>
+        event?.start ? getFormattedDate(event?.start, "day") : ""
+      )
+      .filter((day) => day !== "")
+      .sort((a, b) => Number(a) - Number(b));
+    if (!result) return "";
+    if (result.length === 0) return "";
+    return result.length > 1 ? (
+      <p className="text-[14px] text-gray-500">
+        {`Dias ${result[0]}, ${result[1]} ...`}
+      </p>
+    ) : (
+      <p className="text-[14px] text-gray-500">Dia {result[0]}</p>
+    );
   };
 
   return (
@@ -160,9 +235,16 @@ function CalendarPage() {
           droppable={true}
           selectable={true}
           selectMirror={true}
-          drop={(data) => addEvent(data)}
+          drop={(data) => dropAndAddEventInCalendar(data)}
           eventChange={(info) => updateEvent(info)}
-          // dateClick={}
+          dateClick={(data) => {
+            setNewEvent({
+              ...newEvent,
+              start: data.date,
+            });
+            setLocalToCreateEvent("calendar");
+            setShowCreateEventModal(true);
+          }}
           // eventClick={}
         />
         <div
@@ -170,7 +252,7 @@ function CalendarPage() {
           className="bg-primary w-1/6 border-2 rounded-[8px]"
         >
           <h1 className="font-semibold text-center p-3 text-white">Eventos</h1>
-          <div className="flex flex-col gap-2 p-2 overflow-y-auto min-h-[50vh]">
+          <div className="flex flex-col gap-2 p-2 overflow-y-scroll h-[50vh]">
             {draggableEvents?.map((event) => (
               <div
                 className={classNames(
@@ -181,12 +263,13 @@ function CalendarPage() {
                 draggable="true"
                 title={event.title}
                 key={event.id}
-                data-event-description={event.extendedProps.description}
-                data-event-user-id={event.extendedProps.userId}
               >
                 <div className="flex w-full items-center justify-between">
-                  <p className="font-semibold text-[16px]">{event.title}</p>
-                  <p>Dia {getFormattedDate(event.start, "day")}</p>
+                  <p className="font-semibold text-[16px]">{`${event.title.slice(
+                    0,
+                    30
+                  )}...`}</p>
+                  {formatDaysInDraggableCard(event.title)}
                 </div>
                 {nameOfEventsInCalender?.includes(event.title) && (
                   <p className="text-[14px] text-gray-500">Na Agenda</p>
@@ -198,7 +281,10 @@ function CalendarPage() {
             <Button
               type="primary"
               label="Adicionar Evento"
-              onClick={() => setShowCreateEventModal(true)}
+              onClick={() => {
+                setLocalToCreateEvent("draggable");
+                setShowCreateEventModal(true);
+              }}
               disabled={false}
               typeButton="button"
             />
@@ -208,8 +294,13 @@ function CalendarPage() {
       <CreateEventModal
         isOpen={showCreateEventModal}
         onClose={() => setShowCreateEventModal(false)}
-        onConfirm={() => {}}
+        onConfirm={() => setShowCreateEventModal(false)}
+        localToCreateEvent={localToCreateEvent}
+        newEvent={newEvent}
+        setNewEvent={setNewEvent}
+        draggableEvents={draggableEvents ? draggableEvents : []}
       />
+      <Toaster position="top-right" />
     </div>
   );
 }

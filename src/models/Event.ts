@@ -1,6 +1,6 @@
 export interface Event {
   title: string;
-  start: Date | string;
+  start: Date | string | null;
   allDay: boolean;
   id: number;
   extendedProps: {

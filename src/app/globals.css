@@ -13,6 +13,10 @@ body {
   font-family: "Poppins", sans-serif;
 }
 
+::-webkit-scrollbar {
+  width: 0;
+}
+
 .nav-links {
   font-family: "PT Sans", sans-serif;
   line-height: 0.8;

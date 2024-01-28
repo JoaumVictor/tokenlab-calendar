@@ -6,27 +6,27 @@ import { Input } from "@/components";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import ReactLoading from "react-loading";
+import { Event } from "@/models/Event";
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-}
-
-interface FormValues {
-  title: string;
-  description: string;
+  localToCreateEvent: string;
+  newEvent: Event;
+  setNewEvent: React.Dispatch<React.SetStateAction<Event>>;
+  draggableEvents: Event[];
 }
 
 const CreateEventModal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
   onConfirm,
+  localToCreateEvent,
+  newEvent,
+  setNewEvent,
+  draggableEvents,
 }) => {
-  const initialValues = {
-    title: "",
-    description: "",
-  };
   const [loading, setLoading] = useState<boolean>(false);
 
   const validationSchema = Yup.object({
@@ -34,19 +34,50 @@ const CreateEventModal: React.FC<ModalProps> = ({
     description: Yup.string().required("A descrição é obrigatória"),
   });
 
-  const onSubmit = (values: FormValues) => {
-    setLoading(true);
-    if (formik.isValid) {
-      onConfirm();
-    }
-    setLoading(false);
+  const verifyIfNameAlreadyExists = (name: string) => {
+    const nameAlreadyExists = draggableEvents.find(
+      (event) => event.title === name
+    );
+    return nameAlreadyExists ? true : false;
   };
 
   const formik = useFormik({
-    initialValues,
+    initialValues: {
+      title: "",
+      description: "",
+    },
     validationSchema,
-    onSubmit,
+    onSubmit: async (values) => {
+      setLoading(true);
+
+      if (formik.isValid) {
+        if (verifyIfNameAlreadyExists(values.title)) {
+          formik.errors.title = "Já existe um evento com esse nome";
+        } else {
+          formik.errors.title = "";
+          setNewEvent({
+            ...newEvent,
+            title: values.title,
+            extendedProps: {
+              ...newEvent.extendedProps,
+              description: values.description,
+            },
+          });
+          cleanFormik();
+          onConfirm();
+        }
+      }
+
+      setLoading(false);
+    },
   });
+
+  const cleanFormik = () => {
+    formik.values.title = "";
+    formik.values.description = "";
+    formik.touched.title = false;
+    formik.touched.description = false;
+  };
 
   return (
     <Transition show={isOpen} as={Fragment}>
@@ -77,9 +108,13 @@ const CreateEventModal: React.FC<ModalProps> = ({
             leaveFrom="opacity-100 translate-y-0 sm:scale-100"
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-lg sm:w-full mt-[10%]">
-              <div className="bg-slate-100 px-4 sm:px-6 py-3 gap-3">
-                <h1>Crie um evento</h1>
+            <div className="inline-block align-bottom bg-slate-100 rounded-lg py-3 text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-lg sm:w-full mt-[10%]">
+              <div className="px-4 sm:px-6 py-3 gap-3">
+                <h1 className="font-bold text-[22px]">
+                  {localToCreateEvent === "calendar"
+                    ? " Crie um evento no calendário"
+                    : "Crie um evento na lista"}
+                </h1>
                 <Input
                   label="Título"
                   onChange={formik.handleChange}
@@ -101,7 +136,7 @@ const CreateEventModal: React.FC<ModalProps> = ({
                   placeholder="Descrição do evento"
                 />
               </div>
-              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+              <div className="px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button
                   type="button"
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-opacity-80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm"
@@ -122,8 +157,7 @@ const CreateEventModal: React.FC<ModalProps> = ({
                   type="button"
                   className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                   onClick={() => {
-                    formik.touched.title = false;
-                    formik.touched.description = false;
+                    cleanFormik();
                     onClose();
                   }}
                 >

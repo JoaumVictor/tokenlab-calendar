@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useRef } from "react";
 
 interface IAuthProviderProps {
   children: React.ReactNode;
@@ -15,8 +15,10 @@ interface UserProps {
 
 interface AuthContextProps {
   user: UserProps | null;
+  logout: () => void;
   login: (userData: UserProps) => void;
-  logout?: () => void;
+  setUser: React.Dispatch<React.SetStateAction<UserProps | null>>;
+  forceGetUserFromLocalStorage: () => void;
 }
 
 const AuthContext = createContext<AuthContextProps>({} as AuthContextProps);
@@ -25,11 +27,18 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
   const router = useRouter();
   const [user, setUser] = useState<UserProps | null>(null);
 
-  useEffect(() => {
+  const forceGetUserFromLocalStorage = () => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
+    } else {
+      router.push("/login");
     }
+  };
+
+  // ESSA MISERA NÃO ATUALIZA
+  useEffect(() => {
+    forceGetUserFromLocalStorage();
   }, []);
 
   const login = (userData: UserProps) => {
@@ -53,7 +62,9 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
   }, [user, router]);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, logout, login, setUser, forceGetUserFromLocalStorage }}
+    >
       {children}
     </AuthContext.Provider>
   );

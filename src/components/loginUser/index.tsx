@@ -9,6 +9,7 @@ import { handleLogin } from "@/api/users";
 import { useState, useContext } from "react";
 import ReactLoading from "react-loading";
 import AuthContext from "@/context";
+import { useEffect } from "react";
 
 interface LoginUserProps {
   handleRegister: () => void;
@@ -17,7 +18,7 @@ interface LoginUserProps {
 export default function LoginUser({ handleRegister }: LoginUserProps) {
   const [loadingHandleLogin, setLoadingHandleLogin] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const { login } = useContext(AuthContext);
+  const { user, login } = useContext(AuthContext);
   const router = useRouter();
 
   const validationSchema = yup.object({
@@ -36,6 +37,18 @@ export default function LoginUser({ handleRegister }: LoginUserProps) {
         "A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula e um número"
       ),
   });
+
+  useEffect(() => {
+    if (user) {
+      console.log("USER CHEGOU NO ESTADO", user);
+      setTimeout(() => {
+        router.push("/calendar");
+        setLoadingHandleLogin(false);
+      }, 500);
+    } else {
+      console.log("USER NÃO CHEGOU NO ESTADO AINDA");
+    }
+  }, [user]);
 
   const formik = useFormik({
     initialValues: {
@@ -57,11 +70,9 @@ export default function LoginUser({ handleRegister }: LoginUserProps) {
           return;
         }
         setErrorMessage("");
+        console.log("RESULT", result);
         login(result);
-        setTimeout(() => {
-          router.push("/calendar");
-          setLoadingHandleLogin(false);
-        }, 1000);
+        localStorage.setItem("user", JSON.stringify(result));
       } catch (error) {
         console.log(error);
         setLoadingHandleLogin(false);
