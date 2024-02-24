@@ -1,41 +1,26 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useContext } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Input } from "@/components";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import ReactLoading from "react-loading";
 import { Event } from "@/models/Event";
+import { EventContext } from "@/context/event";
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  localToCreateEvent: string;
-  newEvent: Event;
-  setNewEvent: React.Dispatch<React.SetStateAction<Event>>;
-  draggableEvents: Event[];
 }
 
-const CreateEventModal: React.FC<ModalProps> = ({
-  isOpen,
-  onClose,
-  localToCreateEvent,
-  newEvent,
-  setNewEvent,
-  draggableEvents,
-}) => {
+const CreateEventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
+  const { newEvent, setNewEvent } = useContext(EventContext);
+
   const [loading, setLoading] = useState<boolean>(false);
 
   const validationSchema = Yup.object({
     title: Yup.string().required("O título é obrigatório"),
     description: Yup.string().required("A descrição é obrigatória"),
   });
-
-  const verifyIfNameAlreadyExists = (name: string) => {
-    const nameAlreadyExists = draggableEvents.find(
-      (event) => event.title === name
-    );
-    return nameAlreadyExists ? true : false;
-  };
 
   const formik = useFormik({
     initialValues: {
@@ -45,25 +30,19 @@ const CreateEventModal: React.FC<ModalProps> = ({
     validationSchema,
     onSubmit: async (values) => {
       setLoading(true);
-
       if (formik.isValid) {
-        if (verifyIfNameAlreadyExists(values.title)) {
-          formik.errors.title = "Já existe um evento com esse nome";
-        } else {
-          formik.errors.title = "";
-          setNewEvent({
-            ...newEvent,
-            title: values.title,
-            extendedProps: {
-              ...newEvent.extendedProps,
-              description: values.description,
-            },
-          });
-          cleanFormik();
-          onClose();
-        }
+        formik.errors.title = "";
+        setNewEvent({
+          ...newEvent,
+          title: values.title,
+          extendedProps: {
+            ...newEvent?.extendedProps,
+            description: values.description,
+          },
+        });
+        cleanFormik();
+        onClose();
       }
-
       setLoading(false);
     },
   });
@@ -75,12 +54,17 @@ const CreateEventModal: React.FC<ModalProps> = ({
     formik.touched.description = false;
   };
 
+  const handleOnClose = () => {
+    cleanFormik();
+    onClose();
+  };
+
   return (
     <Transition show={isOpen} as={Fragment}>
       <Dialog
         as="div"
         className="fixed inset-0 z-10 overflow-y-auto"
-        onClose={onClose}
+        onClose={handleOnClose}
       >
         <div className="flex items-center justify-center h-screen w-full pt-4 px-4 pb-20 text-center sm:block sm:p-0">
           <Transition.Child
@@ -107,9 +91,7 @@ const CreateEventModal: React.FC<ModalProps> = ({
             <div className="inline-block align-bottom bg-slate-100 rounded-lg py-3 text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-lg sm:w-full mt-[10%]">
               <div className="px-4 sm:px-6 py-3 gap-3">
                 <h1 className="font-bold text-[22px]">
-                  {localToCreateEvent === "calendar"
-                    ? " Crie um evento no calendário"
-                    : "Crie um evento na lista"}
+                  Crie um evento na lista
                 </h1>
                 <Input
                   label="Título"
@@ -154,10 +136,7 @@ const CreateEventModal: React.FC<ModalProps> = ({
                 <button
                   type="button"
                   className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={() => {
-                    cleanFormik();
-                    onClose();
-                  }}
+                  onClick={handleOnClose}
                 >
                   Cancelar
                 </button>

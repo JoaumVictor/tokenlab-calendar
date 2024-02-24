@@ -7,6 +7,10 @@ export function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(" ");
 }
 
+export function generateRandomId() {
+  return Math.floor(Math.random() * 1000000);
+}
+
 export const getFormattedDate = (
   dateInput: string | Date,
   part: DatePart,

@@ -1,10 +1,13 @@
 import "@/app/globals.css";
-import { AuthProvider } from "@/context";
+import { AuthProvider } from "@/context/user";
+import { EventProvider } from "@/context/event";
 
 export default function MyApp({ Component, pageProps }) {
   return (
     <AuthProvider>
-      <Component {...pageProps} />
+      <EventProvider>
+        <Component {...pageProps} />
+      </EventProvider>
     </AuthProvider>
   );
 }

@@ -12,7 +12,7 @@ import interactionPlugin, {
 } from "@fullcalendar/interaction";
 import ptBrLocale from "@fullcalendar/core/locales/pt-br";
 import { useContext, useEffect, useState } from "react";
-import AuthContext from "@/context";
+import AuthContext from "@/context/user";
 import { EventChangeArg, EventSourceInput } from "@fullcalendar/core/index.js";
 import { classNames, getFormattedDate } from "@/util/shared";
 import { getEventsByUserId } from "@/api/events";
@@ -24,6 +24,48 @@ import EditEventModal from "@/components/modals/editEventModal";
 
 function CalendarPage() {
   const { user, forceGetUserFromLocalStorage } = useContext(AuthContext);
+  const [eventOn, setEventOn] = useState<Event | null>({} as Event);
+
+  const [loadingDraggableEvents, setLoadingDraggableEvents] =
+    useState<boolean>(true);
+  const [draggableEvents, setDraggableEvents] = useState<Event[]>(
+    [] as Event[]
+  );
+
+  const [calendarEvents, setCalendarEvents] = useState<Event[]>([] as Event[]);
+
+  const [showCreateEventModal, setShowCreateEventModal] =
+    useState<boolean>(false);
+  const [showEventModal, setShowEventModal] = useState<boolean>(false);
+  const [showEditEventModal, setShowEditEventModal] = useState<boolean>(false);
+
+  const [localToCreateEvent, setLocalToCreateEvent] =
+    useState<string>("draggable");
+
+  const [newEvent, setNewEvent] = useState<Event>({
+    title: "titulo inicial",
+    start: null,
+    allDay: false,
+    id: 0,
+    extendedProps: {
+      description: "",
+      userId: Number(user?.id),
+    },
+  });
+
+  const [nameOfEventsInCalender, setNameOfEventsInCalender] = useState<
+    string[]
+  >([]);
+
+  useEffect(() => {
+    if (calendarEvents) {
+      setNameOfEventsInCalender(
+        calendarEvents
+          .filter((event) => event.id !== 12345)
+          .map((event) => event.title)
+      );
+    }
+  }, [calendarEvents]);
 
   useEffect(() => {
     console.log("página do calendário carregada");
@@ -46,7 +88,30 @@ function CalendarPage() {
   }, []);
 
   useEffect(() => {
+    const createEventModalOnConfirm = () => {
+      if (localToCreateEvent === "calendar") {
+        if (calendarEvents && draggableEvents) {
+          setCalendarEvents([...calendarEvents, newEvent]);
+          setDraggableEvents([...draggableEvents, newEvent]);
+        }
+      } else {
+        if (draggableEvents) {
+          setDraggableEvents([...draggableEvents, newEvent]);
+        }
+        clearNewEvent();
+      }
+    };
+
+    if (newEvent.title !== "") {
+      createEventModalOnConfirm();
+    }
+  }, [newEvent]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
     if (user !== null) {
+      console.log(
+        "usuário encontrado, inicia a busca pelos eventos do usuário"
+      );
       const getAllEventsByUserId = async () => {
         const response: Event[] = await getEventsByUserId(String(user?.id));
         const responseDraggable = response?.filter((event, index, self) => {
@@ -68,7 +133,7 @@ function CalendarPage() {
       };
       getAllEventsByUserId();
     } else {
-      // console.log("usuário não encontrado, inicia a busca pelo usuário no Local Storage");
+      console.log("usuário não encontrado, inicia a busca pelo usuário no LS");
       forceGetUserFromLocalStorage();
     }
   }, [user, forceGetUserFromLocalStorage]);

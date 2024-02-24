@@ -1,6 +1,6 @@
 import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
-import AuthContext from "@/context";
+import AuthContext from "@/context/user";
 import images from "@/assets/images";
 import { Popover } from "@headlessui/react";
 import { BoxContent, Button } from "@/components";

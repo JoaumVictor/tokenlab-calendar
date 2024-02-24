@@ -8,7 +8,7 @@ import icons from "@/assets";
 import { handleLogin } from "@/api/users";
 import { useState, useContext } from "react";
 import ReactLoading from "react-loading";
-import AuthContext from "@/context";
+import AuthContext from "@/context/user";
 import { useEffect } from "react";
 
 interface LoginUserProps {

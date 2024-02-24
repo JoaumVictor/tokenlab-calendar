@@ -2,7 +2,7 @@ export interface Event {
   title: string;
   start: Date | string | null;
   allDay: boolean;
-  id: number;
+  id: string;
   extendedProps: {
     description: string;
     userId: number;

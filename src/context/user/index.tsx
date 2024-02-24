@@ -30,16 +30,12 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
   const forceGetUserFromLocalStorage = () => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      console.log("achei o usuário", storedUser);
+      // console.log("achei o usuário", storedUser);
       setUser(JSON.parse(storedUser));
     } else {
       router.push("/login");
     }
   };
-
-  useEffect(() => {
-    forceGetUserFromLocalStorage();
-  }, []);
 
   const login = (userData: UserProps) => {
     setUser(userData);
@@ -57,9 +53,12 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
         router.push("/login");
       }
     }, 500);
-
     return () => clearTimeout(redirectDelay);
   }, [user, router]);
+
+  useEffect(() => {
+    forceGetUserFromLocalStorage();
+  }, []);
 
   return (
     <AuthContext.Provider

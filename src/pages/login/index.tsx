@@ -2,7 +2,7 @@
 
 import { Header } from "@/components";
 import LoginHero from "@/components/loginHero";
-import { AuthProvider } from "@/context";
+import { AuthProvider } from "@/context/user";
 
 export default function Login() {
   return (
