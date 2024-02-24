@@ -1,7 +1,5 @@
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { IoWarningOutline } from "react-icons/io5";
-import { GoInfo } from "react-icons/go";
 import { Input } from "@/components";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -11,7 +9,6 @@ import { Event } from "@/models/Event";
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
   localToCreateEvent: string;
   newEvent: Event;
   setNewEvent: React.Dispatch<React.SetStateAction<Event>>;
@@ -21,7 +18,6 @@ interface ModalProps {
 const CreateEventModal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
-  onConfirm,
   localToCreateEvent,
   newEvent,
   setNewEvent,
@@ -64,7 +60,7 @@ const CreateEventModal: React.FC<ModalProps> = ({
             },
           });
           cleanFormik();
-          onConfirm();
+          onClose();
         }
       }
 
@@ -134,6 +130,8 @@ const CreateEventModal: React.FC<ModalProps> = ({
                   error={formik.errors.description}
                   touched={formik.touched.description}
                   placeholder="Descrição do evento"
+                  className="h-24 text-wrap"
+                  type="textarea"
                 />
               </div>
               <div className="px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">

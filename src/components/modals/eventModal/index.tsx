@@ -6,9 +6,10 @@ import AuthContext from "@/context";
 import CustomModal from "../customModal";
 
 interface ModalProps {
+  eventOn: Event | null;
+  setEventOn: React.Dispatch<React.SetStateAction<Event | null>>;
   isOpen: boolean;
   onClose: () => void;
-  eventOnId: number;
   draggableEvents: Event[];
   setDraggableEvents: React.Dispatch<React.SetStateAction<Event[]>>;
   calendarEvents: Event[];
@@ -16,22 +17,23 @@ interface ModalProps {
 }
 
 const EventModal: React.FC<ModalProps> = ({
+  eventOn,
+  setEventOn,
   isOpen,
   onClose,
-  eventOnId,
   calendarEvents,
   setCalendarEvents,
 }) => {
   const { user } = useContext(AuthContext);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const eventOn = calendarEvents.find((event) => event.id === eventOnId);
+  const findEventOn = calendarEvents.find((event) => event.id === eventOn?.id);
 
   const handleDelete = () => {
-    if (!eventOn) return;
+    if (!findEventOn) return;
 
     const newCalendarEvents = calendarEvents.filter(
-      (event) => event.id !== eventOn.id
+      (event) => event.id !== findEventOn.id
     );
     setCalendarEvents(newCalendarEvents);
 
@@ -44,7 +46,10 @@ const EventModal: React.FC<ModalProps> = ({
       <Dialog
         as="div"
         className="fixed inset-0 z-10 overflow-y-auto"
-        onClose={onClose}
+        onClose={() => {
+          setEventOn(null);
+          onClose();
+        }}
       >
         <div className="flex items-center justify-center h-screen w-full pt-4 px-4 pb-20 text-center sm:block sm:p-0">
           <Transition.Child
@@ -70,30 +75,30 @@ const EventModal: React.FC<ModalProps> = ({
           >
             <div className="flex items-start flex-col justify-between bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all max-w-2xl mt-[10%] gap-3 p-4 mx-auto">
               <span className="font-bold text-end text-slate-500 text-[14px] mb-2 w-full">
-                ID: {eventOnId}
+                ID: {eventOn?.id}
               </span>
               <span className="w-full text-center font-bold text-2xl">
                 Evento
               </span>
               <span className="font-bold">
-                Titulo: {eventOn?.title && eventOn?.title}
+                Titulo: {findEventOn?.title && findEventOn?.title}
               </span>
               <span className="font-bold">
-                Descrição: {eventOn?.extendedProps?.description}
+                Descrição: {findEventOn?.extendedProps?.description}
               </span>
-              {eventOn?.start && (
+              {findEventOn?.start && (
                 <>
-                  {!eventOn.allDay && (
+                  {!findEventOn.allDay && (
                     <div className="flex items-center justify-start gap-3">
                       <span className="font-bold py-1 px-2 rounded-[4px] text-[18px] bg-primary text-white">
                         Horário de inicio:{" "}
-                        {getFormattedDate(eventOn?.start, "hour")}
+                        {getFormattedDate(findEventOn?.start, "hour")}
                       </span>
                       <span className="font-bold py-1 px-2 rounded-[4px] text-[18px] bg-primary text-white">
                         Horário de fim:{" "}
-                        {eventOn?.extendedProps?.end
+                        {findEventOn?.extendedProps?.end
                           ? getFormattedDate(
-                              eventOn?.extendedProps?.end,
+                              findEventOn?.extendedProps?.end,
                               "hour"
                             )
                           : "Não definido"}
@@ -102,14 +107,15 @@ const EventModal: React.FC<ModalProps> = ({
                   )}
 
                   <span className="font-bold">
-                    Data: {getFormattedDate(eventOn?.start, "completeDay")}
-                    {eventOn?.extendedProps?.end &&
+                    Data: {getFormattedDate(findEventOn?.start, "completeDay")}
+                    {findEventOn?.extendedProps?.end &&
                       getFormattedDate(
-                        eventOn?.extendedProps?.end,
+                        findEventOn?.extendedProps?.end,
                         "completeDay"
-                      ) !== getFormattedDate(eventOn?.start, "completeDay") &&
+                      ) !==
+                        getFormattedDate(findEventOn?.start, "completeDay") &&
                       `- ${getFormattedDate(
-                        eventOn?.extendedProps?.end,
+                        findEventOn?.extendedProps?.end,
                         "completeDay",
                         true
                       )}`}
@@ -123,7 +129,7 @@ const EventModal: React.FC<ModalProps> = ({
               <span className="font-bold text-gray-300">Links: ...</span>
               <span className="font-bold text-gray-300">Tags: ...</span>
               <div className="flex items-center justify-start mt-6">
-                {eventOn?.allDay && (
+                {findEventOn?.allDay && (
                   <span className="bg-yellow-400 p-3 rounded-[8px] text-[12px] font-bold">
                     Esse evento irá durar o dia todo
                   </span>

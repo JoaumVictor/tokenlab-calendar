@@ -12,8 +12,10 @@ interface InputI {
   touched: boolean | undefined;
   handleBlur: (e: any) => void;
   placeholder: string;
-  type?: "text" | "password";
+  type?: "text" | "password" | "textarea";
   eyeInPassword?: boolean;
+  className?: string;
+  rows?: number;
 }
 
 export default function Input({
@@ -27,8 +29,46 @@ export default function Input({
   placeholder,
   type = "text",
   eyeInPassword = true,
+  className,
+  rows = 3,
 }: InputI) {
   const [showPassword, setShowPassword] = useState(false);
+
+  const renderInput = () => {
+    if (type === "textarea") {
+      return (
+        <textarea
+          placeholder={placeholder}
+          name={name}
+          className={classNames(
+            "w-full h-auto pt-2 border outline-none rounded-[8px] text-secondary px-4 focus:border-primary",
+            error && touched ? "border-red-500" : "border-gray-300",
+            className
+          )}
+          onBlur={handleBlur}
+          value={value}
+          onChange={onChange}
+          rows={rows} // Definindo o número de linhas
+        />
+      );
+    }
+
+    return (
+      <input
+        type={type === "password" && showPassword ? "text" : type}
+        placeholder={placeholder}
+        name={name}
+        className={classNames(
+          "w-full h-12 border outline-none rounded-[8px] text-secondary px-4 focus:border-primary",
+          error && touched ? "border-red-500" : "border-gray-300",
+          className
+        )}
+        onBlur={handleBlur}
+        value={value}
+        onChange={onChange}
+      />
+    );
+  };
 
   return (
     <div className="flex flex-col items-start justify-center w-full my-4 flex-nowrap relative">
@@ -45,18 +85,7 @@ export default function Input({
           </span>
         )}
       </div>
-      <input
-        type={type === "password" && showPassword ? "text" : type}
-        placeholder={placeholder}
-        name={name}
-        className={classNames(
-          "w-full h-12 border outline-none rounded-[8px] text-secondary px-4 focus:border-primary",
-          error && touched ? "border-red-500" : "border-gray-300"
-        )}
-        onBlur={handleBlur}
-        value={value}
-        onChange={onChange}
-      />
+      {renderInput()}
       {eyeInPassword && type === "password" && (
         <div className="absolute bottom-0 right-0 h-12 w-12 flex items-center justify-center">
           {showPassword ? (
