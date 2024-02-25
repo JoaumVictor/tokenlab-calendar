@@ -3,7 +3,12 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Event, EventInBack } from "@/models/Event";
 import AuthContext from "../user";
-import { createEvent, getEventsByUserId, deleteEventById } from "@/api/events";
+import {
+  createEvent,
+  getEventsByUserId,
+  deleteEventById,
+  editEvent,
+} from "@/api/events";
 import { generateRandomId } from "@/util/shared";
 
 interface EventContextProps {
@@ -14,7 +19,9 @@ interface EventContextProps {
   updateCalendarEvents: (events: Event[]) => void;
   newEvent: Event;
   setNewEvent: React.Dispatch<React.SetStateAction<Event>>;
+  getAllEventsByUserId: () => Promise<void>;
   handleDeleteEvent: (id: string) => Promise<void>;
+  handleEditEvent: (event: Event) => Promise<void>;
 }
 
 export const EventContext = createContext<EventContextProps>(
@@ -88,16 +95,35 @@ export const EventProvider = ({ children }: EventProviderProps) => {
       allDay: newEvent.allDay,
       description: newEvent.extendedProps.description,
       userId: Number(user?.id),
+      end: newEvent.extendedProps.end
+        ? newEvent.extendedProps.end.toString()
+        : null,
     };
-    if (newEvent.extendedProps.end) {
-      newEventFormatted.end = newEvent.extendedProps.end.toString();
-    }
     const response = await createEvent(newEventFormatted);
     if (!response.message) {
       await getAllEventsByUserId();
       clearNewEvent();
     } else {
       window.alert("ERRO AO CRIAR EVENTO");
+    }
+  };
+
+  const handleEditEvent = async (event: Event) => {
+    const eventFormatted: EventInBack = {
+      start: event.start?.toString() || "",
+      title: event.title,
+      id: Number(event.id),
+      allDay: event.allDay,
+      description: event.extendedProps.description,
+      userId: Number(user?.id),
+      end: event.extendedProps.end ? event.extendedProps.end.toString() : null,
+    };
+    const response = await editEvent(eventFormatted);
+    if (!response.message) {
+      await getAllEventsByUserId();
+      clearNewEvent();
+    } else {
+      window.alert("ERRO AO EDITAR UM EVENTO");
     }
   };
 
@@ -127,7 +153,9 @@ export const EventProvider = ({ children }: EventProviderProps) => {
         updateCalendarEvents,
         newEvent,
         setNewEvent,
+        getAllEventsByUserId,
         handleDeleteEvent,
+        handleEditEvent,
       }}
     >
       {children}

@@ -31,3 +31,13 @@ export const deleteEventById = async (id: string) => {
     return getErrorMessage(error);
   }
 };
+
+export const editEvent = async (data: EventInBack) => {
+  try {
+    const response = await api.put(`/events`, data);
+    return response.data;
+  } catch (error) {
+    console.error("error", error);
+    return getErrorMessage(error);
+  }
+};

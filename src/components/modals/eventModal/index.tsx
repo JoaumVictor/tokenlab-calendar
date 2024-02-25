@@ -16,7 +16,7 @@ interface ModalProps {
 
 const EventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const { user } = useContext(AuthContext);
-  const { calendarEvents, eventOnId, updateCalendarEvents, handleDeleteEvent } =
+  const { calendarEvents, eventOnId, handleEditEvent, handleDeleteEvent } =
     useContext(EventContext);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [modalEdit, setModalEdit] = useState(false);
@@ -39,6 +39,28 @@ const EventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     }
   };
 
+  const handleEdit = async (values: { title: string; description: string }) => {
+    try {
+      setLoading(true);
+      const updatedEvent: Event = {
+        ...findShowEvent,
+        title: values.title,
+        extendedProps: {
+          ...findShowEvent?.extendedProps,
+          description: values.description,
+        },
+      };
+      await handleEditEvent(updatedEvent);
+      setModalEdit(false);
+      formik.touched.title = false;
+      formik.touched.description = false;
+    } catch (error) {
+      console.error("error", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const formik = useFormik({
     initialValues: {
       title: findShowEvent?.title,
@@ -50,21 +72,7 @@ const EventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     }),
     onSubmit: async (values) => {
       if (formik.isValid) {
-        const updatedEvent: Event = {
-          ...findShowEvent,
-          title: values.title,
-          extendedProps: {
-            ...findShowEvent?.extendedProps,
-            description: values.description,
-          },
-        };
-        const updatedEvents = calendarEvents.map((event: Event) =>
-          event.id === eventOnId ? updatedEvent : event
-        );
-        updateCalendarEvents(updatedEvents);
-        setModalEdit(false);
-        formik.touched.title = false;
-        formik.touched.description = false;
+        handleEdit(values);
       }
     },
   });

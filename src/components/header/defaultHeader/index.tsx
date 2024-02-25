@@ -9,12 +9,15 @@ import icons from "@/assets";
 import UserProfileModal from "@/components/modals/userProfileModal";
 import { classNames } from "@/util/shared";
 import CustomModal from "@/components/modals/customModal";
+import { EventContext } from "@/context/event";
 
 export default function DefaultHeader() {
   const router = useRouter();
   const { user, logout } = useContext(AuthContext);
   const [userProfileShow, setUserProfileShow] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
+
+  const { updateCalendarEvents } = useContext(EventContext);
 
   const profileOptions = [
     {
@@ -79,7 +82,9 @@ export default function DefaultHeader() {
                 </div>
               )}
             </Popover>
-            <p>{`Bem-vindo(a) de volta ${user?.name}`}</p>
+            <p>{`Bem-vindo(a) de volta ${user?.name.split(" ")[0]} ${
+              user?.name.split(" ")[1]
+            }`}</p>
           </div>
         </div>
       </BoxContent>
@@ -96,6 +101,7 @@ export default function DefaultHeader() {
         }
         onConfirm={() => {
           if (logout) {
+            updateCalendarEvents([]);
             logout();
             router.push("/login");
           }

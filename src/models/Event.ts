@@ -14,10 +14,11 @@ export interface Event {
 export interface EventInBack {
   title: string;
   start: string;
+  id?: number;
   allDay: boolean;
   description: string;
   userId: number;
-  end?: string;
+  end: string | null;
   // participantsOnEvents?: {
   //   userId: number;
   // }[];

@@ -57,6 +57,7 @@ export const updateEvent = async (
   res: NextApiResponse
 ) => {
   const eventData = req.body;
+  console.log("objeto que recebi no backend", eventData);
   try {
     const eventByIdExist = await eventService.getEventById(
       Number(eventData.id)

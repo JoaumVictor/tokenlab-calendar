@@ -28,6 +28,7 @@ function CalendarPage() {
     setNewEvent,
     setEventOnId,
     updateCalendarEvents,
+    handleEditEvent,
   } = useContext(EventContext);
   const { forceGetUserFromLocalStorage, user } = useContext(AuthContext);
 
@@ -52,9 +53,10 @@ function CalendarPage() {
     setOpenModal({ ...openModal, showEvent: true });
   };
 
-  const handleEventChange = (arg: EventChangeArg) => {
+  const handleEventChange = async (arg: EventChangeArg) => {
     const myEvent = calendarEvents.find((event) => event.id === arg.event.id);
     if (!myEvent || !arg.event.start) return;
+    console.log("arg.event", arg.event.toJSON());
     const updatedEvent: Event = {
       ...myEvent,
       ...arg.event.toJSON(),
@@ -65,10 +67,7 @@ function CalendarPage() {
         end: arg.event.end?.toISOString(),
       },
     };
-    const updatedEvents = calendarEvents.map((event) =>
-      event.id === arg.event.id ? updatedEvent : event
-    );
-    updateCalendarEvents(updatedEvents);
+    await handleEditEvent(updatedEvent);
   };
 
   const [openModal, setOpenModal] = useState({
