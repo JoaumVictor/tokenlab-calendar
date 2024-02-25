@@ -14,10 +14,10 @@ const formatEventType = (event: EventInBack): EventInFront => {
     title: event.title,
     start: new Date(event.start),
     allDay: event.allDay,
-    id: event.id,
+    id: String(event.id),
     extendedProps: {
       description: event.description,
-      userId: event.creatorId,
+      userId: event.userId,
       end: event.end ? new Date(event.end) : undefined,
     },
     participantsOnEvents:
@@ -36,11 +36,11 @@ export const getAllEvents = async (): Promise<EventInFront[]> => {
 };
 
 export const getEventsByUserId = async (
-  creatorId: number
+  userId: number
 ): Promise<EventInFront[]> => {
   const events = await prisma.event.findMany({
     where: {
-      creatorId,
+      userId,
     },
   });
   const formattedEvents: EventInFront[] = events.map(formatEventType);
@@ -78,6 +78,7 @@ export const updateEvent = async (
 };
 
 export const createEvent = async (eventData: Event): Promise<Event> => {
+  console.log("objeto que recebi no backend", eventData);
   return await prisma.event.create({ data: eventData });
 };
 

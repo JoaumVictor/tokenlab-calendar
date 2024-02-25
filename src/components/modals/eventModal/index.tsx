@@ -7,7 +7,7 @@ import CustomModal from "../customModal";
 import { EventContext } from "@/context/event";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { Button, Input } from "@/components";
+import { Input } from "@/components";
 
 interface ModalProps {
   isOpen: boolean;
@@ -16,22 +16,27 @@ interface ModalProps {
 
 const EventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const { user } = useContext(AuthContext);
-  const { calendarEvents, eventOnId, updateCalendarEvents } =
+  const { calendarEvents, eventOnId, updateCalendarEvents, handleDeleteEvent } =
     useContext(EventContext);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [modalEdit, setModalEdit] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const findShowEvent = calendarEvents.find(
+  const findShowEvent = calendarEvents?.find(
     (event: Event) => event.id === eventOnId
   ) as Event;
 
-  const handleDeleteEvent = () => {
-    const updatedEvents = calendarEvents.filter(
-      (event: Event) => event.id !== eventOnId
-    );
-    updateCalendarEvents(updatedEvents);
-    setShowDeleteModal(false);
-    onClose();
+  const handleDelete = async () => {
+    try {
+      setLoading(true);
+      await handleDeleteEvent(eventOnId);
+      setShowDeleteModal(false);
+      onClose();
+    } catch (error) {
+      console.error("error", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formik = useFormik({
@@ -209,9 +214,9 @@ const EventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                   type="button"
                   className="font-bold w-full inline-flex justify-center rounded-md border border-transparent shadow-sm border-red-500 hover:bg-red-500 hover:text-white transform transition-all px-4 py-2 text-base text-red-500 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm disabled:text-gray-400"
                   onClick={() => setShowDeleteModal(true)}
-                  disabled={modalEdit}
+                  disabled={modalEdit || loading}
                 >
-                  Apagar evento
+                  {loading ? "Carregando" : "Apagar evento"}
                 </button>
                 <button
                   type="button"
@@ -244,7 +249,7 @@ const EventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                 title="Apagar evento"
                 message="Tem certeza que deseja apagar esse evento do calendário?"
                 type="error"
-                onConfirm={handleDeleteEvent}
+                onConfirm={handleDelete}
               />
             </div>
           </Transition.Child>

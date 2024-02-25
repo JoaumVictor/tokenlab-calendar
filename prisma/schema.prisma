@@ -11,24 +11,24 @@ datasource db {
 }
 
 model Event {
-  start                DateTime
-  title                String
-  allDay               Boolean
-  id                   Int                    @id @default(autoincrement())
-  description          String
-  creatorId            Int
-  end                  DateTime?
-  creator              User                   @relation(fields: [creatorId], references: [id])
+  id          Int       @id @default(autoincrement())
+  title       String
+  start       DateTime
+  allDay      Boolean
+  description String
+  end         DateTime?
+  userId      Int
+
+  user                 User                   @relation(fields: [userId], references: [id])
   participantsOnEvents ParticipantsOnEvents[]
 }
 
 model ParticipantsOnEvents {
-  event   Event @relation(fields: [eventId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  eventId Int
-  userId  Int
-
-  @@id([eventId, userId])
+  id          Int   @id @default(autoincrement())
+  eventId     Int
+  userId      Int
+  event       Event @relation(fields: [eventId], references: [id])
+  participant User  @relation(fields: [userId], references: [id])
 }
 
 model User {

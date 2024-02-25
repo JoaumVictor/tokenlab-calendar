@@ -7,7 +7,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import ptBrLocale from "@fullcalendar/core/locales/pt-br";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   EventChangeArg,
   EventClickArg,
@@ -19,6 +19,7 @@ import CreateEventModal from "@/components/modals/createEventModal";
 import { generateRandomId } from "@/util/shared";
 import EventModal from "@/components/modals/eventModal";
 import { Event } from "@/models/Event";
+import AuthContext from "@/context/user";
 
 function CalendarPage() {
   const {
@@ -28,6 +29,13 @@ function CalendarPage() {
     setEventOnId,
     updateCalendarEvents,
   } = useContext(EventContext);
+  const { forceGetUserFromLocalStorage, user } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (!user) {
+      forceGetUserFromLocalStorage();
+    }
+  }, [user]);
 
   const handleDateClick = (arg: { date: Date; allDay: boolean }) => {
     setOpenModal({ ...openModal, createEvent: true });

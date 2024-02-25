@@ -1,9 +1,9 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Event } from "@/models/Event";
+import { Event, EventInBack } from "@/models/Event";
 import AuthContext from "../user";
-import { getEventsByUserId } from "@/api/events";
+import { createEvent, getEventsByUserId, deleteEventById } from "@/api/events";
 import { generateRandomId } from "@/util/shared";
 
 interface EventContextProps {
@@ -14,6 +14,7 @@ interface EventContextProps {
   updateCalendarEvents: (events: Event[]) => void;
   newEvent: Event;
   setNewEvent: React.Dispatch<React.SetStateAction<Event>>;
+  handleDeleteEvent: (id: string) => Promise<void>;
 }
 
 export const EventContext = createContext<EventContextProps>(
@@ -43,11 +44,27 @@ export const EventProvider = ({ children }: EventProviderProps) => {
     },
   });
 
-  const formatEventTitle = (title: string) =>
-    title.length >= 23 ? `${title.slice(0, 23)}...` : title;
-
   const updateCalendarEvents = (events: Event[]) => {
     setCalendarEvents(events);
+  };
+
+  const getAllEventsByUserId = async () => {
+    const response = await getEventsByUserId(String(user?.id));
+    if (!response.message) {
+      setCalendarEvents(response);
+    } else {
+      window.alert("ERRO AO ATUALIZAR O CALENDÁRIO");
+    }
+    setLoadingCalendarEvents(false);
+  };
+
+  const handleDeleteEvent = async (id: string) => {
+    const response = await deleteEventById(id);
+    if (response.status === 200) {
+      await getAllEventsByUserId();
+    } else {
+      window.alert("ERRO AO DELETAR EVENTO");
+    }
   };
 
   const clearNewEvent = () => {
@@ -64,21 +81,38 @@ export const EventProvider = ({ children }: EventProviderProps) => {
     });
   };
 
-  useEffect(() => {
-    if (newEvent.title !== "titulo inicial") {
-      setCalendarEvents([...calendarEvents, newEvent]);
-      clearNewEvent();
+  const createNewEvent = async () => {
+    const newEventFormatted: EventInBack = {
+      start: newEvent.start?.toString() || "",
+      title: newEvent.title,
+      allDay: newEvent.allDay,
+      description: newEvent.extendedProps.description,
+      userId: Number(user?.id),
+    };
+    if (newEvent.extendedProps.end) {
+      newEventFormatted.end = newEvent.extendedProps.end.toString();
     }
+    const response = await createEvent(newEventFormatted);
+    if (!response.message) {
+      await getAllEventsByUserId();
+      clearNewEvent();
+    } else {
+      window.alert("ERRO AO CRIAR EVENTO");
+    }
+  };
+
+  useEffect(() => {
+    const request = async () => {
+      if (newEvent.title !== "titulo inicial") {
+        await createNewEvent();
+      }
+    };
+    request();
   }, [newEvent]);
 
   useEffect(() => {
     if (user !== null) {
       setLoadingCalendarEvents(true);
-      const getAllEventsByUserId = async () => {
-        const response: Event[] = await getEventsByUserId(String(user?.id));
-        if (response) setCalendarEvents(response);
-        setLoadingCalendarEvents(false);
-      };
       getAllEventsByUserId();
     }
   }, [user]);
@@ -93,6 +127,7 @@ export const EventProvider = ({ children }: EventProviderProps) => {
         updateCalendarEvents,
         newEvent,
         setNewEvent,
+        handleDeleteEvent,
       }}
     >
       {children}

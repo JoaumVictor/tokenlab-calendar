@@ -11,10 +11,6 @@ export default async function handler(
         await eventController.getEventsByUserId(req, res);
         break;
 
-      case "DELETE":
-        await eventController.deleteEvent(req, res);
-        break;
-
       default:
         res.status(405).json({ message: "Method not allowed" });
         break;

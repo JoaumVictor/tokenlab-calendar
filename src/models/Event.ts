@@ -10,3 +10,15 @@ export interface Event {
   };
   participantsOnEvents?: number[];
 }
+
+export interface EventInBack {
+  title: string;
+  start: string;
+  allDay: boolean;
+  description: string;
+  userId: number;
+  end?: string;
+  // participantsOnEvents?: {
+  //   userId: number;
+  // }[];
+}
