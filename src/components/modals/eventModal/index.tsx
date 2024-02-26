@@ -194,10 +194,11 @@ const EventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                   {findShowEvent?.extendedProps?.end &&
                     getFormattedDate(
                       findShowEvent?.extendedProps?.end,
-                      "completeDay"
+                      "completeDay",
+                      true
                     ) !==
                       getFormattedDate(findShowEvent?.start, "completeDay") &&
-                    `- ${getFormattedDate(
+                    ` - ${getFormattedDate(
                       findShowEvent?.extendedProps?.end,
                       "completeDay",
                       true

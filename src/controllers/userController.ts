@@ -112,7 +112,6 @@ export const deleteUser = async (req: NextApiRequest, res: NextApiResponse) => {
     if (!userExist) {
       return res.status(404).json({ message: "Usuário não encontrado" });
     }
-    console.log("req.query.id", req.query.id);
     await userService.deleteUser(Number(req.query.id));
     return res.status(200).json({ message: "Usuário deletado com sucesso" });
   } catch (error) {

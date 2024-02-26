@@ -27,7 +27,6 @@ function CalendarPage() {
     newEvent,
     setNewEvent,
     setEventOnId,
-    updateCalendarEvents,
     handleEditEvent,
   } = useContext(EventContext);
   const { forceGetUserFromLocalStorage, user } = useContext(AuthContext);
@@ -56,7 +55,6 @@ function CalendarPage() {
   const handleEventChange = async (arg: EventChangeArg) => {
     const myEvent = calendarEvents.find((event) => event.id === arg.event.id);
     if (!myEvent || !arg.event.start) return;
-    console.log("arg.event", arg.event.toJSON());
     const updatedEvent: Event = {
       ...myEvent,
       ...arg.event.toJSON(),

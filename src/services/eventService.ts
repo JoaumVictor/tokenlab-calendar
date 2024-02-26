@@ -43,7 +43,6 @@ export const getEventsByUserId = async (
       userId,
     },
   });
-  console.log("DEVOLVENDO OS EVENTOS", events);
   const formattedEvents: EventInFront[] = events.map(formatEventType);
   return formattedEvents;
 };
@@ -68,11 +67,6 @@ export const updateEvent = async (
   eventId: number,
   eventData: Event
 ): Promise<EventInFront> => {
-  console.log(
-    "evento anterior",
-    await prisma.event.findUnique({ where: { id: eventId } })
-  );
-  console.log("evento que recebi no backend", eventData);
   const event = await prisma.event.update({
     where: {
       id: eventId,
@@ -80,7 +74,6 @@ export const updateEvent = async (
     data: eventData,
   });
   const formattedEvent: EventInFront = formatEventType(event);
-  console.log("evento atualizado", formattedEvent);
 
   return formattedEvent;
 };

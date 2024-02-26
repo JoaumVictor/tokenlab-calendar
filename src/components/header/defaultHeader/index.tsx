@@ -82,9 +82,7 @@ export default function DefaultHeader() {
                 </div>
               )}
             </Popover>
-            <p>{`Bem-vindo(a) de volta ${user?.name.split(" ")[0]} ${
-              user?.name.split(" ")[1]
-            }`}</p>
+            <p>{`Bem-vindo(a) de volta ${user?.name.split(" ")[0]}`}</p>
           </div>
         </div>
       </BoxContent>

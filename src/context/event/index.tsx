@@ -57,8 +57,11 @@ export const EventProvider = ({ children }: EventProviderProps) => {
 
   const getAllEventsByUserId = async () => {
     const response = await getEventsByUserId(String(user?.id));
+    const responseModified = response.map((event: Event) => {
+      return { ...event, end: event.extendedProps.end };
+    });
     if (!response.message) {
-      setCalendarEvents(response);
+      setCalendarEvents(responseModified);
     } else {
       window.alert("ERRO AO ATUALIZAR O CALENDÁRIO");
     }

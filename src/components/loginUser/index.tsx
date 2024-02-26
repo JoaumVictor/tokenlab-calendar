@@ -68,9 +68,6 @@ export default function LoginUser({ handleRegister }: LoginUserProps) {
         }
         setErrorMessage("");
         login(result);
-        console.log(
-          "efetuei o login, usuário setado no contexto e no localStorage"
-        );
       } catch (error) {
         console.log(error);
         setLoadingHandleLogin(false);
