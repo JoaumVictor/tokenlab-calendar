@@ -93,7 +93,7 @@ export default function DefaultHeader() {
         title="Deseja realmente sair?"
         message={
           <span>
-            Tarefas não salvas da lista de eventos para dentro do calendário{" "}
+            Se houverem eventos não salvos no calendário{" "}
             <span className="text-red-500">serão perdidos</span>.
           </span>
         }

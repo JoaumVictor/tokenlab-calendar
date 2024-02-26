@@ -81,7 +81,7 @@ const EventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     <Transition show={isOpen} as={Fragment}>
       <Dialog
         as="div"
-        className="fixed inset-0 z-10 overflow-y-auto"
+        className="fixed inset-0 z-10"
         onClose={() => {
           onClose();
           setModalEdit(false);
@@ -160,24 +160,24 @@ const EventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                   </div>
                 </>
               ) : (
-                <>
-                  <span className="font-bold">
+                <div className="w-full flex items-start justify-center flex-col gap-3">
+                  <p className="font-bold w-full text-wrap max-h-[350px] overflow-y-scroll">
                     Titulo: {findShowEvent?.title}
-                  </span>
-                  <span className="font-bold">
+                  </p>
+                  <p className="font-bold w-full text-wrap max-h-[350px] overflow-y-scroll">
                     Descrição: {findShowEvent?.extendedProps?.description}
-                  </span>
-                </>
+                  </p>
+                </div>
               )}
               {!findShowEvent?.allDay && (
                 <div className="flex items-center justify-start gap-3">
                   {findShowEvent?.start && (
-                    <span className="font-bold py-1 px-2 rounded-[4px] text-[18px] bg-primary text-white">
+                    <p className="font-bold py-1 px-2 rounded-[4px] text-[18px] bg-primary text-white">
                       Horário de inicio:{" "}
                       {getFormattedDate(findShowEvent?.start, "hour")}
-                    </span>
+                    </p>
                   )}
-                  <span className="font-bold py-1 px-2 rounded-[4px] text-[18px] bg-primary text-white">
+                  <p className="font-bold py-1 px-2 rounded-[4px] text-[18px] bg-primary text-white">
                     Horário de fim:{" "}
                     {findShowEvent?.extendedProps?.end
                       ? getFormattedDate(
@@ -185,11 +185,11 @@ const EventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                           "hour"
                         )
                       : "Não definido"}
-                  </span>
+                  </p>
                 </div>
               )}
               {findShowEvent?.start && (
-                <span className="font-bold">
+                <p className="font-bold">
                   Data: {getFormattedDate(findShowEvent?.start, "completeDay")}
                   {findShowEvent?.extendedProps?.end &&
                     getFormattedDate(
@@ -208,7 +208,7 @@ const EventModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                       "completeDay",
                       true
                     )}`}
-                </span>
+                </p>
               )}
               <span className="font-bold">Criador: {user?.name}</span>
               <span className="font-bold text-gray-300">
